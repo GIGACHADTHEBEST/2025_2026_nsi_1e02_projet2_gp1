@@ -2,4 +2,4 @@
 Gwenolé Beillevaire
 Jermolajs Adarcenko
 Louis El tantawi
-Raphael bottalo-gambetta
+Raphael Botalla-Gambetta 
