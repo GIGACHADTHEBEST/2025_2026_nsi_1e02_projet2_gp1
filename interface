@@ -1,0 +1,13 @@
+from tkinter import *
+def fenetre():
+    app=Tk()
+    frame=Frame(app)
+    frame.pack()
+    app.mainloop()
+fenetre()
+def bouton():
+    app=Tk()
+    bouton=Button(app,text="Jouer")
+    bouton.pack()
+    app.mainloop()
+bouton()
