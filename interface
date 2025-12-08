@@ -5,6 +5,16 @@ import pandas as pd
 
 #FONCTIONS COULEURS
 
+df = pd.read_csv(
+    "jeux.csv",
+    sep=",",
+    encoding="utf-8",
+    thousands=" ",  # espace insécable dans les nombres
+    engine="python"
+)
+
+print(df.head())
+
 
 def get_ticket_colors():
     """
