@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
 
 def main():
     # ─────────────────────────────
@@ -14,18 +15,22 @@ def main():
         messagebox.showerror("Erreur", "Le fichier jeux.csv est introuvable.")
         return
 
-    # ─────────────────────────────
-    # Nettoyage et préparation des données
-    # ─────────────────────────────
-    df = df.rename(columns={"jeu": "nom_jeu", "prix": "prix_ticket"}).dropna(subset=["nom_jeu", "prix_ticket"])
+    # Nettoyer noms de colonnes (enlever espaces insécables et espaces)
+    df.columns = [col.replace('\u202f', '').replace(' ', '') for col in df.columns]
+
+    # Renommer colonnes pour cohérence (si besoin)
+    df = df.rename(columns={"jeu": "nom_jeu", "prix": "prix_ticket"})
 
     # Nettoyage des colonnes numériques
     for col in df.columns:
         if col != "nom_jeu":
             df[col] = pd.to_numeric(df[col].astype(str).str.replace("\u202f", "").str.replace(" ", ""), errors="coerce")
 
+    # Colonnes à exclure du graphique (non-gains)
+    exclude_cols = ["nom_jeu", "prix_ticket", "unites", "totalgains", "gain_max"]
+
     # Colonnes représentant les gains
-    gain_cols = [c for c in df.columns if c not in ["nom_jeu", "prix_ticket"]]
+    gain_cols = [c for c in df.columns if c not in exclude_cols]
 
     # Calcul du gain maximum
     df["gain_max"] = df[gain_cols].max(axis=1)
@@ -38,14 +43,12 @@ def main():
     root.geometry("1200x1000")
     root.configure(bg="#f0f4f7")
 
-    # Styles
     style = ttk.Style()
     style.theme_use("clam")
     style.configure("TLabel", font=("Helvetica", 12), background="#f0f4f7")
     style.configure("TButton", font=("Helvetica", 11), padding=6)
     style.configure("TCombobox", font=("Helvetica", 11))
 
-    # ───────────── Filtres ─────────────
     frame_filters = tk.LabelFrame(root, text="Filtres", padx=15, pady=15, bg="#dce6f0", font=("Helvetica", 12, "bold"))
     frame_filters.pack(fill="x", padx=15, pady=15)
 
@@ -78,7 +81,6 @@ def main():
 
     update_jeu_list()
 
-    # ───────────── Graphique ─────────────
     fig, ax = plt.subplots(figsize=(10, 5))
     fig.patch.set_facecolor("#f0f4f7")
     canvas = FigureCanvasTkAgg(fig, master=root)
@@ -98,31 +100,42 @@ def main():
             filtered = df[(df["nom_jeu"] == jeu) & (df["prix_ticket"] == float(prix))]
 
         if filtered.empty:
-            ax.text(0.5, 0.5, "Aucune donnée", ha="center", va="center", fontsize=14)
-            stats_label.config(text="Aucune statistique disponible.")
+            ax.set_title("Aucune donnée disponible pour cette sélection")
             canvas.draw()
+            stats_label.config(text="Aucune donnée à afficher.")
             return
 
-        # Récupérer les gains (sans NaN)
-        gains = filtered[gain_cols].iloc[0].dropna()
+        # Transforme les colonnes de gains en format long
+        long_gains = filtered[gain_cols].melt(value_name='gain').dropna()
 
-        ax.bar(gains.index, gains.values, color="#2c7ad6", edgecolor="#1c5bbf")
-        ax.set_ylabel("Montant du gain (€)")
-        ax.set_title(f"Gains possibles pour le jeu : {jeu}", fontsize=14)
-        ax.set_xticks(range(len(gains.index)))
-        ax.set_xticklabels(gains.index, rotation=45, ha="right")
+        # Compter combien de tickets donnent chaque montant
+        counts = long_gains['gain'].value_counts().sort_index()
 
-        gain_max = int(filtered["gain_max"].iloc[0])
-        prix_reel = df[df["nom_jeu"] == jeu]["prix_ticket"].iloc[0]
+        # Graphique horizontal
+        ax.barh([f"{int(g):,} €" for g in counts.index], counts.values, color="#2c7ad6", edgecolor="#1c5bbf", height=0.6)
+        ax.set_xlabel("Nombre de tickets")
+        ax.set_title(f"Répartition des gains pour le jeu : {jeu}", fontsize=16, fontweight='bold')
+        ax.invert_yaxis()  # plus gros montant en haut
+
+        # Ajouter valeurs à droite des barres
+        for i, (gain, count) in enumerate(zip(counts.index, counts.values)):
+            ax.text(count, i, f"{count:,}", va='center', ha='left', fontsize=9)
+
+        plt.tight_layout()
+
+        # Statistiques
+        gain_max = int(filtered["gain_max"].max())
+        prix_reel = float(prix) if prix != "Tous" else filtered["prix_ticket"].iloc[0]
         prix_txt = f"{prix_reel} €"
 
         stats_label.config(
-            text=f"📌 Statistiques pour « {jeu} »\n➡ Prix du ticket : {prix_txt}\n➡ Gain maximum : {gain_max:,} €"
+            text=f"📌 Statistiques pour « {jeu} »\n➡ Prix du ticket : {prix_txt}\n➡ Gain maximum : {gain_max:,} €\n➡ Nombre total de tickets : {filtered['unites'].sum():,}"
         )
 
         canvas.draw()
 
-    # ───────────── Boutons ─────────────
+
+
     frame_buttons = tk.Frame(root, bg="#f0f4f7")
     frame_buttons.pack(pady=15)
 
@@ -131,7 +144,6 @@ def main():
 
     update_graph()
     root.mainloop()
-
 
 if __name__ == "__main__":
     main()
