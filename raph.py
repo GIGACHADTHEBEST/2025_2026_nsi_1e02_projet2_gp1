@@ -119,7 +119,7 @@ def main():
         ax.set_xticklabels(gains.index, rotation=45, ha="right")
 
         gain_max = int(filtered["gain_max"].iloc[0])
-        prix_txt = "Tous les prix" if prix == "Tous" else f"{prix} €"
+        prix_txt = "Tous les prix" if prix == "Tous" else f"{filtered['prix_ticket'].iloc[0]} €"
         stats_label.config(
             text=f"📌 Statistiques pour « {jeu} »\n➡ Prix du ticket : {prix_txt}\n➡ Gain maximum : {gain_max:,} €"
         )
