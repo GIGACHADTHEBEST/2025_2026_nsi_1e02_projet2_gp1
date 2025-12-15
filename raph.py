@@ -15,31 +15,20 @@ def main():
         return
 
     # ─────────────────────────────
-    # Normalisation des noms de colonnes
+    # Nettoyage et préparation des données
     # ─────────────────────────────
-    df = df.rename(columns={"jeu": "nom_jeu", "prix": "prix_ticket"})
-    df = df.dropna(subset=["nom_jeu", "prix_ticket"])
-
-    # Nettoyage des colonnes numériques uniquement
+    df = df.rename(columns={"jeu": "nom_jeu", "prix": "prix_ticket"}).dropna(subset=["nom_jeu", "prix_ticket"])
+    
+    # Nettoyage des colonnes numériques
     for col in df.columns:
         if col != "nom_jeu":
-            df[col] = (
-                df[col].astype(str)
-                .str.replace("\u202f", "", regex=False)
-                .str.replace(" ", "", regex=False)
-            )
+            df[col] = pd.to_numeric(df[col].astype(str).str.replace("\u202f", "").str.replace(" ", ""), errors="coerce")
 
-    gain_cols = [c for c in df.columns if c.replace(",", "").isdigit()]
-    df[gain_cols + ["prix_ticket"]] = df[gain_cols + ["prix_ticket"]].apply(
-        pd.to_numeric, errors="coerce"
-    )
+    # Colonnes représentant les gains
+    gain_cols = [c for c in df.columns if c not in ["nom_jeu", "prix_ticket"]]
 
     # Calcul du gain maximum
-    def calcul_gain_max(row):
-        gains = [row[col] for col in gain_cols if pd.notna(row[col])]
-        return max(gains) if gains else None
-
-    df["gain_max"] = df.apply(calcul_gain_max, axis=1)
+    df["gain_max"] = df[gain_cols].max(axis=1)
 
     # ─────────────────────────────
     # Interface graphique
@@ -49,9 +38,7 @@ def main():
     root.geometry("1000x700")
     root.configure(bg="#f0f4f7")
 
-    # ─────────────────────────────
-    # Styles personnalisés
-    # ─────────────────────────────
+    # Styles
     style = ttk.Style()
     style.theme_use("clam")
     style.configure("TLabel", font=("Helvetica", 12), background="#f0f4f7")
@@ -59,14 +46,13 @@ def main():
     style.configure("TCombobox", font=("Helvetica", 11))
 
     # ───────────── Filtres ─────────────
-    frame_filters = tk.LabelFrame(
-        root, text="Filtres", padx=15, pady=15, bg="#dce6f0", font=("Helvetica", 12, "bold")
-    )
+    frame_filters = tk.LabelFrame(root, text="Filtres", padx=15, pady=15, bg="#dce6f0", font=("Helvetica", 12, "bold"))
     frame_filters.pack(fill="x", padx=15, pady=15)
 
-    prix_list = ["Tous"] + sorted(df["prix_ticket"].dropna().unique().tolist())
     prix_var = tk.StringVar(value="Tous")
     jeu_var = tk.StringVar()
+
+    prix_list = ["Tous"] + sorted(df["prix_ticket"].dropna().unique().tolist())
 
     def update_jeu_list(*args):
         if prix_var.get() == "Tous":
@@ -103,6 +89,7 @@ def main():
         ax.clear()
         jeu = jeu_var.get()
         prix = prix_var.get()
+
         filtered = df[df["nom_jeu"] == jeu] if prix == "Tous" else df[(df["nom_jeu"] == jeu) & (df["prix_ticket"] == float(prix))]
 
         if filtered.empty:
@@ -115,6 +102,7 @@ def main():
         ax.bar([jeu], [gain_max], color="#2c7ad6", edgecolor="#1c5bbf")
         ax.set_ylabel("Gain maximum (€)")
         ax.set_title(f"Gain maximum du jeu : {jeu}", fontsize=14)
+
         prix_txt = "Tous les prix" if prix == "Tous" else f"{prix} €"
         stats_label.config(
             text=f"📌 Statistiques pour « {jeu} »\n➡ Prix du ticket : {prix_txt}\n➡ Gain maximum : {gain_max:,} €"
