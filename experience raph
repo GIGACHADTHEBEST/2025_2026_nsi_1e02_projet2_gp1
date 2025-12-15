@@ -1,0 +1,104 @@
+import pandas as pd
+import tkinter as tk
+from tkinter import ttk, messagebox
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
+
+def main():
+    try:
+        df = pd.read_csv("data-fdj-jeux-de-grattage.csv")
+    except FileNotFoundError:
+        messagebox.showerror("Erreur", "Le fichier data-fdj-jeux-de-grattage.csv est introuvable.")
+        return
+
+    df = df.dropna(subset=["nom_jeu", "prix_ticket", "gain_max"])
+
+    root = tk.Tk()
+    root.title("Analyse des jeux à gratter - FDJ")
+    root.geometry("1000x650")
+
+    style = ttk.Style()
+    style.theme_use("clam")
+    style.configure("TLabel", font=("Arial", 11))
+    style.configure("TButton", font=("Arial", 11))
+    style.configure("TCombobox", font=("Arial", 11))
+
+    frame_filters = tk.LabelFrame(root, text="Filtres", padx=10, pady=10)
+    frame_filters.pack(fill="x", padx=10, pady=10)
+
+    prix_list = sorted(df["prix_ticket"].unique())
+    prix_var = tk.StringVar(value=str(prix_list[0]))
+    jeu_var = tk.StringVar()
+
+    def update_jeu_list(*args):
+        prix_sel = float(prix_var.get())
+        jeux_ok = sorted(df[df["prix_ticket"] == prix_sel]["nom_jeu"].unique())
+        jeu_menu["values"] = jeux_ok
+        if jeux_ok:
+            jeu_var.set(jeux_ok[0])
+
+    prix_var.trace("w", update_jeu_list)
+
+    ttk.Label(frame_filters, text="Prix (€) :").grid(row=0, column=0, padx=10)
+    prix_menu = ttk.Combobox(frame_filters, textvariable=prix_var, values=prix_list, state="readonly")
+    prix_menu.grid(row=0, column=1, padx=10)
+
+    ttk.Label(frame_filters, text="Jeu :").grid(row=0, column=2, padx=10)
+    jeu_menu = ttk.Combobox(frame_filters, textvariable=jeu_var, state="readonly")
+    jeu_menu.grid(row=0, column=3, padx=10)
+
+    update_jeu_list()
+
+    fig, ax = plt.subplots(figsize=(8, 4))
+    canvas = FigureCanvasTkAgg(fig, master=root)
+    canvas.get_tk_widget().pack(pady=10)
+
+    stats_label = ttk.Label(root, text="", font=("Arial", 12))
+    stats_label.pack(pady=10)
+
+    def update_graph():
+        ax.clear()
+
+        jeu = jeu_var.get()
+        prix = float(prix_var.get())
+
+        filtered = df[(df["nom_jeu"] == jeu) & (df["prix_ticket"] == prix)]
+
+        if filtered.empty:
+            ax.text(0.5, 0.5, "Aucune donnée", ha="center", va="center", fontsize=14)
+            stats_label.config(text="Aucune statistique disponible.")
+        else:
+            gain_max = filtered["gain_max"].iloc[0]
+            gain_min = filtered.get("gain_min", pd.Series([None])).iloc[0] if "gain_min" in df else None
+            gain_moy = filtered.get("gain_moy", pd.Series([None])).iloc[0] if "gain_moy" in df else None
+
+            ax.bar([jeu], [gain_max], color="#2c7ad6")
+            ax.set_ylabel("Gain maximum (€)")
+            ax.set_title(f"Gain maximum du jeu : {jeu}")
+
+            stats = f"📌 Statistiques pour « {jeu} »\n"
+            stats += f"➡ Prix du ticket : {prix} €\n"
+            stats += f"➡ Gain max : {gain_max:,} €\n"
+
+            if gain_min:
+                stats += f"➡ Gain min : {gain_min:,} €\n"
+            if gain_moy:
+                stats += f"➡ Gain moyen : {gain_moy:,} €\n"
+
+            stats_label.config(text=stats)
+
+        canvas.draw()
+
+    frame_buttons = tk.Frame(root)
+    frame_buttons.pack(pady=10)
+
+    ttk.Button(frame_buttons, text="Actualiser", command=update_graph).grid(row=0, column=0, padx=10)
+    ttk.Button(frame_buttons, text="Quitter", command=root.destroy).grid(row=0, column=1, padx=10)
+
+    update_graph()
+
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
