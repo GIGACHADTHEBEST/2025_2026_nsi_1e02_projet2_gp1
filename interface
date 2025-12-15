@@ -1,19 +1,6 @@
 import tkinter as tk
 import random
-import pandas as pd
-import json
-
 #FONCTIONS COULEURS
-
-df = pd.read_csv(
-    "jeux.csv",
-    sep=",",
-    encoding="utf-8",
-    thousands=" ",  # espace insécable dans les nombres
-    engine="python"
-)
-
-print(df.head())
 
 
 def get_ticket_colors():
@@ -74,6 +61,7 @@ def create_title(root, colors):
                      font=("Arial", 50, "bold"),
                      bg=colors["window_bg"], fg="black")
     label.pack(pady=50)
+
 
 def create_scratch_button(root, colors):
     global scratch_button
