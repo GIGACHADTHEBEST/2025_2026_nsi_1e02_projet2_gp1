@@ -10,7 +10,7 @@ def main():
     # Chargement du CSV
     # ─────────────────────────────
     try:
-        df = pd.read_csv("data-fdj-jeux-de-grattage.csv")
+        df = pd.read_csv("jeux.csv")
     except FileNotFoundError:
         messagebox.showerror(
             "Erreur", "Le fichier jeux.csv est introuvable."
