@@ -35,7 +35,7 @@ def main():
     # ─────────────────────────────
     root = tk.Tk()
     root.title("🎲 Analyse des jeux à gratter - FDJ")
-    root.geometry("1000x700")
+    root.geometry("1200x1000")
     root.configure(bg="#f0f4f7")
 
     # Styles
@@ -92,12 +92,6 @@ def main():
         jeu = jeu_var.get()
         prix = prix_var.get()
 
-        if not jeu:
-            ax.text(0.5, 0.5, "Aucune donnée", ha="center", va="center", fontsize=14)
-            stats_label.config(text="Aucune statistique disponible.")
-            canvas.draw()
-            return
-
         if prix == "Tous":
             filtered = df[df["nom_jeu"] == jeu]
         else:
@@ -119,7 +113,9 @@ def main():
         ax.set_xticklabels(gains.index, rotation=45, ha="right")
 
         gain_max = int(filtered["gain_max"].iloc[0])
-        prix_txt = "Tous les prix" if prix == "Tous" else f"{filtered['prix_ticket'].iloc[0]} €"
+        prix_reel = df[df["nom_jeu"] == jeu]["prix_ticket"].iloc[0]
+        prix_txt = f"{prix_reel} €"
+
         stats_label.config(
             text=f"📌 Statistiques pour « {jeu} »\n➡ Prix du ticket : {prix_txt}\n➡ Gain maximum : {gain_max:,} €"
         )
