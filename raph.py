@@ -18,7 +18,7 @@ def main():
     # Nettoyage et préparation des données
     # ─────────────────────────────
     df = df.rename(columns={"jeu": "nom_jeu", "prix": "prix_ticket"}).dropna(subset=["nom_jeu", "prix_ticket"])
-    
+
     # Nettoyage des colonnes numériques
     for col in df.columns:
         if col != "nom_jeu":
@@ -35,7 +35,7 @@ def main():
     # ─────────────────────────────
     root = tk.Tk()
     root.title("🎲 Analyse des jeux à gratter - FDJ")
-    root.geometry("1100x700")
+    root.geometry("1000x700")
     root.configure(bg="#f0f4f7")
 
     # Styles
@@ -60,7 +60,6 @@ def main():
         else:
             prix_sel = float(prix_var.get())
             jeux_ok = sorted(df[df["prix_ticket"] == prix_sel]["nom_jeu"].unique())
-        
         jeu_menu["values"] = jeux_ok
         if jeux_ok:
             jeu_var.set(jeux_ok[0])
@@ -74,7 +73,7 @@ def main():
     prix_menu.grid(row=0, column=1, padx=10, pady=5)
 
     ttk.Label(frame_filters, text="Jeu :").grid(row=0, column=2, padx=10, pady=5)
-    jeu_menu = ttk.Combobox(frame_filters, textvariable=jeu_var, state="readonly", width=30)
+    jeu_menu = ttk.Combobox(frame_filters, textvariable=jeu_var, state="readonly", width=25)
     jeu_menu.grid(row=0, column=3, padx=10, pady=5)
 
     update_jeu_list()
@@ -99,8 +98,10 @@ def main():
             canvas.draw()
             return
 
-        # Filtrer les données
-        filtered = df[df["nom_jeu"] == jeu] if prix == "Tous" else df[(df["nom_jeu"] == jeu) & (df["prix_ticket"] == float(prix))]
+        if prix == "Tous":
+            filtered = df[df["nom_jeu"] == jeu]
+        else:
+            filtered = df[(df["nom_jeu"] == jeu) & (df["prix_ticket"] == float(prix))]
 
         if filtered.empty:
             ax.text(0.5, 0.5, "Aucune donnée", ha="center", va="center", fontsize=14)
@@ -108,30 +109,20 @@ def main():
             canvas.draw()
             return
 
-        if prix == "Tous":
-            # Comparer le gain max par prix
-            prix_values = filtered["prix_ticket"].tolist()
-            gain_values = filtered["gain_max"].tolist()
-            ax.bar([str(p) for p in prix_values], gain_values, color="#2c7ad6", edgecolor="#1c5bbf")
-            ax.set_xlabel("Prix du ticket (€)")
-            ax.set_ylabel("Gain maximum (€)")
-            ax.set_title(f"Gain maximum par prix pour le jeu : {jeu}", fontsize=14)
-            stats_label.config(
-                text=f"📌 Statistiques pour « {jeu} »\n➡ Comparaison du gain maximum par prix"
-            )
-        else:
-            # Afficher tous les gains possibles pour le jeu
-            gains = filtered[gain_cols].iloc[0].dropna()
-            ax.bar(gains.index, gains.values, color="#2c7ad6", edgecolor="#1c5bbf")
-            ax.set_ylabel("Montant du gain (€)")
-            ax.set_title(f"Gains possibles pour le jeu : {jeu}", fontsize=14)
-            ax.set_xticklabels(gains.index, rotation=45, ha="right")
+        # Récupérer les gains (sans NaN)
+        gains = filtered[gain_cols].iloc[0].dropna()
 
-            gain_max = int(filtered["gain_max"].iloc[0])
-            prix_txt = f"{prix} €"
-            stats_label.config(
-                text=f"📌 Statistiques pour « {jeu} »\n➡ Prix du ticket : {prix_txt}\n➡ Gain maximum : {gain_max:,} €"
-            )
+        ax.bar(gains.index, gains.values, color="#2c7ad6", edgecolor="#1c5bbf")
+        ax.set_ylabel("Montant du gain (€)")
+        ax.set_title(f"Gains possibles pour le jeu : {jeu}", fontsize=14)
+        ax.set_xticks(range(len(gains.index)))
+        ax.set_xticklabels(gains.index, rotation=45, ha="right")
+
+        gain_max = int(filtered["gain_max"].iloc[0])
+        prix_txt = "Tous les prix" if prix == "Tous" else f"{prix} €"
+        stats_label.config(
+            text=f"📌 Statistiques pour « {jeu} »\n➡ Prix du ticket : {prix_txt}\n➡ Gain maximum : {gain_max:,} €"
+        )
 
         canvas.draw()
 
@@ -144,6 +135,7 @@ def main():
 
     update_graph()
     root.mainloop()
+
 
 if __name__ == "__main__":
     main()
