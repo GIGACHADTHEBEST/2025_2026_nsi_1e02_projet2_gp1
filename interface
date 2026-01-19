@@ -57,7 +57,7 @@ def create_window():
 
 
 def create_title(root, colors):
-    label = tk.Label(root, text="🎟️Ticket à gratter",
+    label = tk.Label(root, text="🎟️Ticket à gratter 3 euros ",
                      font=("Arial", 50, "bold"),
                      bg=colors["window_bg"], fg="black")
     label.pack(pady=50)
@@ -100,7 +100,6 @@ def create_action_buttons(root, colors):
 
 
 def new_ticket():
-    """fait un nouveau gain et réinitialise l'affichage."""
     global current_prize, prize_revealed
 
     # Pb : 90 % de 0$
