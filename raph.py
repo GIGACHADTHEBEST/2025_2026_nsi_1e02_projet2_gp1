@@ -4,6 +4,7 @@ from tkinter import ttk, messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 
+print ("Bonjour, voulez-(vous jouer à un jeu d'argent ?)")
 
 
 def load_csv(filepath):
@@ -273,4 +274,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+ 
  
