@@ -53,10 +53,7 @@ def creer_filtres(root, df):
     jeu_var = tk.StringVar()
 
     # liste des prix dans le tableau
-    prix_list = ["Tous"]
-    for p in df["prix_ticket"].dropna().unique():
-        prix_list.append(p)
-    prix_list.sort()  # pour trier cete liste
+    prix_list = ["Tous"] + sorted(df["prix_ticket"].dropna().unique())  # pour trier cete liste
 
     # ajouter le texte prix et le menu pour choisir le prix
     ttk.Label(frame, text="Prix (€)").grid(row=0, column=0)
@@ -77,16 +74,19 @@ def update_jeux(df, prix_var, jeu_var, jeu_menu):
     if prix_var.get() == "Tous":
         jeux = df["nom_jeu"].unique()
     else:
-        # on prend seulement les jeux avec ce prix sinon
-        prix = float(prix_var.get())  # transformer le prix en nombre
-        jeux = df[df["prix_ticket"] == prix]["nom_jeu"].unique()
+        try:
+            prix_val = float(prix_var.get())
+            jeux = sorted(df[df["prix_ticket"] == prix_val]["nom_jeu"].unique())
+        except ValueError:
+            jeux = []
 
-    # trier les jeux par ordre alphabétique
-    jeux = sorted(jeux)
-
-    # les mettre cette liste dans le menu déroulant
     jeu_menu["values"] = jeux
+    if len(jeux) > 0:
+        jeu_var.set(jeux[0])
+    else:
+        jeu_var.set("")
 
+    
 
 
 # GRAPHIQUE
@@ -108,20 +108,22 @@ def update_graph(df, gain_cols, prix_var, jeu_var, ax, canvas, stats_label):
     if prix == "Tous":
         data = df[df["nom_jeu"] == jeu]
     else:
-        data = df[
-            (df["nom_jeu"] == jeu) &
-            (df["prix_ticket"] == float(prix))
-        ]
+        try:
+            prix_val = float(prix)
+            data = df[(df["nom_jeu"] == jeu) & (df["prix_ticket"] == prix_val)]
+        except ValueError:
+            data = pd.DataFrame()
 
     if data.empty:
         ax.set_title("Aucune donnée")
         canvas.draw()
+        stats_label.config(text="")
         return
 
     gains = data[gain_cols].melt()["value"].dropna()
     counts = gains.value_counts().sort_index()
 
-    ax.barh(counts.index.astype(int), counts.values)
+    ax.barh(counts.index.astype(int).astype(str), counts.values)
     ax.set_xlabel("Nombre de tickets")
     ax.set_title(f"Gains - {jeu}")
 
