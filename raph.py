@@ -5,9 +5,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 
 
-# ─────────────────────────────────────
-# DATA
-# ─────────────────────────────────────
+
 def load_csv(filepath):
     try:
         return pd.read_csv(filepath)
@@ -62,9 +60,6 @@ def prepare_dataframe(filepath):
     return df, gain_cols
 
 
-# ─────────────────────────────────────
-# STYLE
-# ─────────────────────────────────────
 def create_root():
     root = tk.Tk()
     root.title(" Analyse des jeux à gratter - FDJ")
@@ -81,9 +76,6 @@ def configure_style():
     style.configure("TCombobox", font=("Helvetica", 11))
 
 
-# ─────────────────────────────────────
-# FILTER 
-# ─────────────────────────────────────
 def create_filter_frame(root):
     frame = tk.LabelFrame(
         root,
@@ -153,9 +145,6 @@ def bind_prix_change(df, prix_var, jeu_var, jeu_menu):
     )
 
 
-# ─────────────────────────────────────
-# GRAPH
-# ─────────────────────────────────────
 def filter_dataframe(df, jeu, prix):
     if prix == "Tous":
         return df[df["nom_jeu"] == jeu]
@@ -167,9 +156,7 @@ def build_gain_distribution(filtered, gain_cols):
     return long["gain"].value_counts().sort_index()
 
 
-# ─────────────────────────────────────
-# GRAPH
-# ─────────────────────────────────────
+
 def create_figure(root):
     fig, ax = plt.subplots(figsize=(10, 5))
     fig.patch.set_facecolor("#f0f4f7")
@@ -205,9 +192,6 @@ def refresh_canvas(canvas):
     canvas.draw()
 
 
-# ─────────────────────────────────────
-# STATS
-# ─────────────────────────────────────
 def create_stats_label(root):
     label = ttk.Label(root, text="", font=("Helvetica", 12, "bold"), justify="left")
     label.pack(pady=10)
@@ -224,10 +208,6 @@ def update_stats(label, filtered, jeu):
         )
     )
 
-
-# ─────────────────────────────────────
-# MAIN GRAPH UPDATE
-# ─────────────────────────────────────
 def update_graph(df, gain_cols, ax, canvas, jeu_var, prix_var, stats_label):
     clear_graph(ax)
 
@@ -251,10 +231,6 @@ def update_graph(df, gain_cols, ax, canvas, jeu_var, prix_var, stats_label):
 
     refresh_canvas(canvas)
 
-
-# ─────────────────────────────────────
-# BUTTONS
-# ─────────────────────────────────────
 def create_buttons(root, command_update):
     frame = tk.Frame(root, bg="#f0f4f7")
     frame.pack(pady=15)
@@ -262,10 +238,6 @@ def create_buttons(root, command_update):
     ttk.Button(frame, text="Actualiser", command=command_update).grid(row=0, column=0, padx=10)
     ttk.Button(frame, text="Quitter", command=root.destroy).grid(row=0, column=1, padx=10)
 
-
-# ─────────────────────────────────────
-# MAIN
-# ─────────────────────────────────────
 def main():
     df, gain_cols = prepare_dataframe("jeux.csv")
     if df is None:
@@ -299,7 +271,6 @@ def main():
     root.mainloop()
 
 
-# ─────────────────────────────────────
 if __name__ == "__main__":
     main()
  
