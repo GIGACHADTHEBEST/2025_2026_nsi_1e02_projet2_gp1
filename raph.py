@@ -61,32 +61,23 @@ def prepare_dataframe(filepath):
     return df, gain_cols
 
 
+# ─────────────────────────────────────
+# UI
+# ─────────────────────────────────────
 def create_root():
     root = tk.Tk()
-    root.title(" Analyse des jeux à gratter - FDJ")
+    root.title("Analyse des jeux à gratter - FDJ")
     root.geometry("1200x1000")
-    root.configure(bg="#f0f4f7")
     return root
 
 
 def configure_style():
-    style = ttk.Style()
-    style.theme_use("clam")
-    style.configure("TLabel", font=("Helvetica", 12))
-    style.configure("TButton", font=("Helvetica", 11), padding=6)
-    style.configure("TCombobox", font=("Helvetica", 11))
+    ttk.Style()
 
 
 def create_filter_frame(root):
-    frame = tk.LabelFrame(
-        root,
-        text="Filtres",
-        padx=15,
-        pady=15,
-        bg="#dce6f0",
-        font=("Helvetica", 12, "bold")
-    )
-    frame.pack(fill="x", padx=15, pady=15)
+    frame = tk.LabelFrame(root, text="Filtres", padx=10, pady=10)
+    frame.pack(fill="x", padx=10, pady=10)
     return frame
 
 
@@ -103,27 +94,16 @@ def get_prix_list(df):
 
 
 def create_prix_menu(frame, prix_var, prix_list):
-    ttk.Label(frame, text="Prix (€) :").grid(row=0, column=0, padx=10)
-    menu = ttk.Combobox(
-        frame,
-        textvariable=prix_var,
-        values=prix_list,
-        state="readonly",
-        width=15
-    )
-    menu.grid(row=0, column=1, padx=10)
+    ttk.Label(frame, text="Prix (€) :").grid(row=0, column=0, padx=5)
+    menu = ttk.Combobox(frame, textvariable=prix_var, values=prix_list, state="readonly")
+    menu.grid(row=0, column=1, padx=5)
     return menu
 
 
 def create_jeu_menu(frame, jeu_var):
-    ttk.Label(frame, text="Jeu :").grid(row=0, column=2, padx=10)
-    menu = ttk.Combobox(
-        frame,
-        textvariable=jeu_var,
-        state="readonly",
-        width=25
-    )
-    menu.grid(row=0, column=3, padx=10)
+    ttk.Label(frame, text="Jeu :").grid(row=0, column=2, padx=5)
+    menu = ttk.Combobox(frame, textvariable=jeu_var, state="readonly")
+    menu.grid(row=0, column=3, padx=5)
     return menu
 
 
@@ -157,10 +137,8 @@ def build_gain_distribution(filtered, gain_cols):
     return long["gain"].value_counts().sort_index()
 
 
-
 def create_figure(root):
     fig, ax = plt.subplots(figsize=(10, 5))
-    fig.patch.set_facecolor("#f0f4f7")
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.get_tk_widget().pack(pady=10)
     return fig, ax, canvas
@@ -173,8 +151,7 @@ def clear_graph(ax):
 def draw_bars(ax, counts):
     ax.barh(
         [f"{int(g):,} €" for g in counts.index],
-        counts.values,
-        color="#2c7ad6"
+        counts.values
     )
     ax.invert_yaxis()
     ax.set_xlabel("Nombre de tickets")
@@ -186,7 +163,7 @@ def annotate_bars(ax, counts):
 
 
 def set_graph_title(ax, jeu):
-    ax.set_title(f"Répartition des gains – {jeu}", fontsize=15)
+    ax.set_title(f"Répartition des gains – {jeu}")
 
 
 def refresh_canvas(canvas):
@@ -194,7 +171,7 @@ def refresh_canvas(canvas):
 
 
 def create_stats_label(root):
-    label = ttk.Label(root, text="", font=("Helvetica", 12, "bold"), justify="left")
+    label = ttk.Label(root, text="", justify="left")
     label.pack(pady=10)
     return label
 
@@ -202,13 +179,17 @@ def create_stats_label(root):
 def update_stats(label, filtered, jeu):
     label.config(
         text=(
-            f" Jeu : {jeu}\n"
-            f"➡ Prix : {filtered['prix_ticket'].iloc[0]} €\n"
-            f"➡ Gain max : {int(filtered['gain_max'].max()):,} €\n"
-            f"➡ Tickets : {filtered['unites'].sum():,}"
+            f"Jeu : {jeu}\n"
+            f"Prix : {filtered['prix_ticket'].iloc[0]} €\n"
+            f"Gain max : {int(filtered['gain_max'].max()):,} €\n"
+            f"Tickets : {filtered['unites'].sum():,}"
         )
     )
 
+
+# ─────────────────────────────────────
+# MAIN UPDATE
+# ─────────────────────────────────────
 def update_graph(df, gain_cols, ax, canvas, jeu_var, prix_var, stats_label):
     clear_graph(ax)
 
@@ -233,11 +214,11 @@ def update_graph(df, gain_cols, ax, canvas, jeu_var, prix_var, stats_label):
     refresh_canvas(canvas)
 
 def create_buttons(root, command_update):
-    frame = tk.Frame(root, bg="#f0f4f7")
-    frame.pack(pady=15)
+    frame = tk.Frame(root)
+    frame.pack(pady=10)
 
-    ttk.Button(frame, text="Actualiser", command=command_update).grid(row=0, column=0, padx=10)
-    ttk.Button(frame, text="Quitter", command=root.destroy).grid(row=0, column=1, padx=10)
+    ttk.Button(frame, text="Actualiser", command=command_update).grid(row=0, column=0, padx=5)
+    ttk.Button(frame, text="Quitter", command=root.destroy).grid(row=0, column=1, padx=5)
 
 def main():
     df, gain_cols = prepare_dataframe("jeux.csv")
