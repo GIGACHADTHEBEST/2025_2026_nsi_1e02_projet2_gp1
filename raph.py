@@ -4,15 +4,6 @@ from tkinter import ttk, messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-print ("Bonjour, voulez-vous jouer à un jeu d'argent ?)")
->>>>>>> bf417b59a8430571d6c3b32f0880f03e0159447c
-=======
-
->>>>>>> ff6d83705e493fab4e5a963e32e4d67edc78ab26
-
 # DATA
 
 def load_csv(filepath):
