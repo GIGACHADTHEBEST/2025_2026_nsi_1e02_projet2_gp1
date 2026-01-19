@@ -4,8 +4,8 @@ from tkinter import ttk, messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 
-print ("Bonjour, voulez-(vous jouer à un jeu d'argent ?)")
 
+# DATA
 
 def load_csv(filepath):
     try:
@@ -61,9 +61,7 @@ def prepare_dataframe(filepath):
     return df, gain_cols
 
 
-# ─────────────────────────────────────
-# UI
-# ─────────────────────────────────────
+# fenetre
 def create_root():
     root = tk.Tk()
     root.title("Analyse des jeux à gratter - FDJ")
@@ -126,6 +124,7 @@ def bind_prix_change(df, prix_var, jeu_var, jeu_menu):
     )
 
 
+# afficher les graphiques a partir des stats
 def filter_dataframe(df, jeu, prix):
     if prix == "Tous":
         return df[df["nom_jeu"] == jeu]
@@ -170,6 +169,7 @@ def refresh_canvas(canvas):
     canvas.draw()
 
 
+# pour les stats
 def create_stats_label(root):
     label = ttk.Label(root, text="", justify="left")
     label.pack(pady=10)
@@ -187,9 +187,8 @@ def update_stats(label, filtered, jeu):
     )
 
 
-# ─────────────────────────────────────
-# MAIN UPDATE
-# ─────────────────────────────────────
+
+# mise a jour des graphiques
 def update_graph(df, gain_cols, ax, canvas, jeu_var, prix_var, stats_label):
     clear_graph(ax)
 
@@ -213,6 +212,8 @@ def update_graph(df, gain_cols, ax, canvas, jeu_var, prix_var, stats_label):
 
     refresh_canvas(canvas)
 
+
+# boutton quitter et actualiser
 def create_buttons(root, command_update):
     frame = tk.Frame(root)
     frame.pack(pady=10)
@@ -220,6 +221,8 @@ def create_buttons(root, command_update):
     ttk.Button(frame, text="Actualiser", command=command_update).grid(row=0, column=0, padx=5)
     ttk.Button(frame, text="Quitter", command=root.destroy).grid(row=0, column=1, padx=5)
 
+
+# ici le main
 def main():
     df, gain_cols = prepare_dataframe("jeux.csv")
     if df is None:
@@ -255,5 +258,3 @@ def main():
 
 if __name__ == "__main__":
     main()
- 
- 
