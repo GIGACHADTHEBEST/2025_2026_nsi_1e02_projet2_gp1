@@ -13,19 +13,25 @@ def charger_donnees(fichier):
 
 def nettoyer_donnees(df):
     df.columns = df.columns.str.replace(" ", "")
-    df = df.rename(columns={"jeu": "nom_jeu", "prix": "prix_ticket"})
 
+    # changer les noms des colones pour qu'ils soient plus lisible (entre guillemet)
+    df = df.rename(columns={
+        "jeu": "nom_jeu",
+        "prix": "prix_ticket"
+    })
+
+    # pour convertir les colonnes en nombres (sauf le nom du jeu)
     for col in df.columns:
         if col != "nom_jeu":
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    gain_cols = [
-        c for c in df.columns
-        if c not in ["nom_jeu", "prix_ticket", "unites", "totalgains"]
-    ]
+    # Créer une liste des colonnes de gains
+    gain_cols = []
+    for col in df.columns:
+        if col != "nom_jeu" and col != "prix_ticket" and col != "unites" and col != "totalgains":
+            gain_cols.append(col)
 
     return df, gain_cols
-
 
 # INTERFACE
 
@@ -38,23 +44,32 @@ def creer_fenetre():
 
 
 def creer_filtres(root, df):
+    # faire la fenetre
     frame = tk.Frame(root)
     frame.pack(pady=10)
 
+    # 2. Variables pour garder ce que l'utilisateur choisit autrement dit les filtres
     prix_var = tk.StringVar(value="Tous")
     jeu_var = tk.StringVar()
 
-    prix_list = ["Tous"] + sorted(df["prix_ticket"].dropna().unique().tolist())
+    # 3. Liste des prix dans le tableau
+    prix_list = ["Tous"]
+    for p in df["prix_ticket"].dropna().unique():
+        prix_list.append(p)
+    prix_list.sort()  # Trier la liste
 
+    # 4. Ajouter le texte "Prix (€)" et le menu pour choisir le prix
     ttk.Label(frame, text="Prix (€)").grid(row=0, column=0)
-    ttk.Combobox(frame, textvariable=prix_var,
-                 values=prix_list, state="readonly").grid(row=0, column=1)
+    ttk.Combobox(frame, textvariable=prix_var, values=prix_list, state="readonly").grid(row=0, column=1)
 
+    # 5. Ajouter le texte "Jeu" et le menu pour choisir le jeu
     ttk.Label(frame, text="Jeu").grid(row=0, column=2)
     jeu_menu = ttk.Combobox(frame, textvariable=jeu_var, state="readonly")
     jeu_menu.grid(row=0, column=3)
 
+    # 6. Retourner les choses qu'on va utiliser après
     return prix_var, jeu_var, jeu_menu
+
 
 
 def update_jeux(df, prix_var, jeu_var, jeu_menu):
