@@ -103,7 +103,7 @@ def new_ticket():
     global current_prize, prize_revealed
 
     # Pb : 90 % de 0$
-    prizes = [0] * 9 + [1, 5, 10, 50]
+    prizes = [0] * 9 + [1, 5, 10, 500000000, "cigaretes"]
     current_prize = random.choice(prizes)
 
     prize_revealed = False
