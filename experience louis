@@ -48,41 +48,45 @@ def creer_filtres(root, df):
     frame = tk.Frame(root)
     frame.pack(pady=10)
 
-    # 2. Variables pour garder ce que l'utilisateur choisit autrement dit les filtres
+    # variables pour garder ce que l'utilisateur choisit autrement dit les filtres
     prix_var = tk.StringVar(value="Tous")
     jeu_var = tk.StringVar()
 
-    # 3. Liste des prix dans le tableau
-    prix_list = ["Tous"]
-    for p in df["prix_ticket"].dropna().unique():
-        prix_list.append(p)
-    prix_list.sort()  # Trier la liste
+    # liste des prix dans le tableau
+    prix_list = ["Tous"] + sorted(df["prix_ticket"].dropna().unique())  # pour trier cete liste
 
-    # 4. Ajouter le texte "Prix (€)" et le menu pour choisir le prix
+    # ajouter le texte prix et le menu pour choisir le prix
     ttk.Label(frame, text="Prix (€)").grid(row=0, column=0)
     ttk.Combobox(frame, textvariable=prix_var, values=prix_list, state="readonly").grid(row=0, column=1)
 
-    # 5. Ajouter le texte "Jeu" et le menu pour choisir le jeu
+    # ajouter le texte jeu et le menu pour choisir le jeu
     ttk.Label(frame, text="Jeu").grid(row=0, column=2)
     jeu_menu = ttk.Combobox(frame, textvariable=jeu_var, state="readonly")
     jeu_menu.grid(row=0, column=3)
 
-    # 6. Retourner les choses qu'on va utiliser après
+    # retourner les choses qu'on va utiliser après
     return prix_var, jeu_var, jeu_menu
 
 
 
 def update_jeux(df, prix_var, jeu_var, jeu_menu):
+    # verif le prix choisi
     if prix_var.get() == "Tous":
-        jeux = sorted(df["nom_jeu"].unique())
+        jeux = df["nom_jeu"].unique()
     else:
-        jeux = sorted(
-            df[df["prix_ticket"] == float(prix_var.get())]["nom_jeu"].unique()
-        )
+        try:
+            prix_val = float(prix_var.get())
+            jeux = sorted(df[df["prix_ticket"] == prix_val]["nom_jeu"].unique())
+        except ValueError:
+            jeux = []
 
     jeu_menu["values"] = jeux
-    if jeux:
+    if len(jeux) > 0:
         jeu_var.set(jeux[0])
+    else:
+        jeu_var.set("")
+
+    
 
 
 # GRAPHIQUE
@@ -104,20 +108,22 @@ def update_graph(df, gain_cols, prix_var, jeu_var, ax, canvas, stats_label):
     if prix == "Tous":
         data = df[df["nom_jeu"] == jeu]
     else:
-        data = df[
-            (df["nom_jeu"] == jeu) &
-            (df["prix_ticket"] == float(prix))
-        ]
+        try:
+            prix_val = float(prix)
+            data = df[(df["nom_jeu"] == jeu) & (df["prix_ticket"] == prix_val)]
+        except ValueError:
+            data = pd.DataFrame()
 
     if data.empty:
         ax.set_title("Aucune donnée")
         canvas.draw()
+        stats_label.config(text="")
         return
 
     gains = data[gain_cols].melt()["value"].dropna()
     counts = gains.value_counts().sort_index()
 
-    ax.barh(counts.index.astype(int), counts.values)
+    ax.barh(counts.index.astype(int).astype(str), counts.values)
     ax.set_xlabel("Nombre de tickets")
     ax.set_title(f"Gains - {jeu}")
 
