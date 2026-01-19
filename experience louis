@@ -5,9 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
-# =========================
 # DONNÉES
-# =========================
 
 def charger_donnees(fichier):
     return pd.read_csv(fichier)
@@ -29,9 +27,8 @@ def nettoyer_donnees(df):
     return df, gain_cols
 
 
-# =========================
 # INTERFACE
-# =========================
+
 
 def creer_fenetre():
     root = tk.Tk()
@@ -73,9 +70,8 @@ def update_jeux(df, prix_var, jeu_var, jeu_menu):
         jeu_var.set(jeux[0])
 
 
-# =========================
 # GRAPHIQUE
-# =========================
+
 
 def creer_graphique(root):
     fig, ax = plt.subplots(figsize=(8, 4))
@@ -120,9 +116,7 @@ Tickets : {int(data['unites'].sum())}
     canvas.draw()
 
 
-# =========================
-# BOUTONS
-# =========================
+# BOUTONS POUR METTRE A JOUR ET POUR QUITTER
 
 def creer_boutons(root, update_callback):
     frame = tk.Frame(root)
@@ -134,9 +128,9 @@ def creer_boutons(root, update_callback):
                command=root.destroy).grid(row=0, column=1, padx=5)
 
 
-# =========================
+
 # PROGRAMME PRINCIPAL
-# =========================
+
 
 def main():
     df = charger_donnees("jeux.csv")
