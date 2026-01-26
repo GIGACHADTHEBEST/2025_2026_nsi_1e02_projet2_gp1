@@ -107,6 +107,8 @@ def creer_graphique(root):
 
 def update_graph(df, gain_cols, prix_var, jeu_var, ax, canvas, stats_label):
     ax.clear()
+    tickets_gagnants = data[data[gain_cols].gt(0).any(axis=1)]["unites"].sum()
+
 
     jeu = jeu_var.get()
     prix = prix_var.get()
@@ -146,18 +148,16 @@ def update_graph(df, gain_cols, prix_var, jeu_var, ax, canvas, stats_label):
     ax.set_title(f"Répartition des gains – {jeu}")
 
     # Statistiques
-    prix_affiche = (
-        "Tous"
-        if prix == "Tous"
-        else f"{prix} €"
-    )
+    prix_affiche = "Tous" if prix == "Tous" else f"{prix} €"
+
+    tickets_gagnants = data[data[gain_cols].gt(0).any(axis=1)]["unites"].sum()
 
     stats_label.config(text=f"""
-Jeu : {jeu}
-Prix : {prix_affiche}
-Gain max : {counts.index.max()} €
-Tickets gagnants : {int(counts.sum())}
-""")
+    Jeu : {jeu}
+    Prix : {prix_affiche}
+    Gain max : {counts.index.max()} €
+    Tickets gagnants : {int(tickets_gagnants)}
+    """)
 
     canvas.draw()
 
