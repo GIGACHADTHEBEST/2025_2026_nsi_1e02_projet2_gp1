@@ -21,17 +21,15 @@ def nettoyer_donnees(df):
         "prix": "prix_ticket"
     })
 
-    # pour convertir les colonnes en nombres (sauf le nom du jeu)
+    # Nettoyer les colonnes : enlever espaces insécables et convertir en numérique
     for col in df.columns:
         if col != "nom_jeu":
+            # remplacer espace normal et espace insécable
+            df[col] = df[col].astype(str).str.replace("\u202f", "", regex=False)
+            df[col] = df[col].astype(str).str.replace(" ", "", regex=False)
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    # Créer une liste des colonnes de gains
-    gain_cols = [
-    col for col in df.columns
-    if col not in ["nom_jeu", "prix_ticket", "unites", "totalgains"]
-    ]
-
+    gain_cols = [col for col in df.columns if col not in ["nom_jeu", "prix_ticket", "unites", "totalgains"]]
 
     return df, gain_cols
 
