@@ -107,8 +107,6 @@ def creer_graphique(root):
 
 def update_graph(df, gain_cols, prix_var, jeu_var, ax, canvas, stats_label):
     ax.clear()
-    tickets_gagnants = data[data[gain_cols].gt(0).any(axis=1)]["unites"].sum()
-
 
     jeu = jeu_var.get()
     prix = prix_var.get()
@@ -129,7 +127,7 @@ def update_graph(df, gain_cols, prix_var, jeu_var, ax, canvas, stats_label):
         stats_label.config(text="")
         return
 
-    # Calcul correct des gains (les unités)
+    # Transformation des gains
     gains_df = data[gain_cols + ["unites"]].melt(
         id_vars="unites",
         value_vars=gain_cols,
@@ -140,8 +138,7 @@ def update_graph(df, gain_cols, prix_var, jeu_var, ax, canvas, stats_label):
 
     counts = gains_df.groupby("gain", sort=True)["unites"].sum()
 
-
-    # Graphique 
+    # Graphique
     ax.barh(counts.index.astype(str), counts.values)
     ax.set_xlabel("Nombre de tickets")
     ax.set_ylabel("Gain (€)")
@@ -149,17 +146,17 @@ def update_graph(df, gain_cols, prix_var, jeu_var, ax, canvas, stats_label):
 
     # Statistiques
     prix_affiche = "Tous" if prix == "Tous" else f"{prix} €"
-
     tickets_gagnants = data[data[gain_cols].gt(0).any(axis=1)]["unites"].sum()
 
     stats_label.config(text=f"""
-    Jeu : {jeu}
-    Prix : {prix_affiche}
-    Gain max : {counts.index.max()} €
-    Tickets gagnants : {int(tickets_gagnants)}
-    """)
+Jeu : {jeu}
+Prix : {prix_affiche}
+Gain max : {counts.index.max()} €
+Tickets gagnants : {int(tickets_gagnants)}
+""")
 
     canvas.draw()
+
 
 
 # BOUTONS POUR METTRE A JOUR ET POUR QUITTER
