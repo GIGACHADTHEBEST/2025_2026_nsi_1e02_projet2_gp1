@@ -95,7 +95,7 @@ def update_jeux(df, prix_var, jeu_var, jeu_menu):
 def creer_graphique(root):
     fig, ax = plt.subplots(figsize=(8, 4))
     canvas = FigureCanvasTkAgg(fig, root)
-    canvas.get_tk_widget().pack()
+    canvas.get_tk_widget().pack(fill="both", expand=True)
     return fig, ax, canvas
 
 
@@ -105,12 +105,13 @@ def update_graph(df, gain_cols, prix_var, jeu_var, ax, canvas, stats_label):
     jeu = jeu_var.get()
     prix = prix_var.get()
 
-    if prix == "Tous":
-        data = df[df["nom_jeu"] == jeu]
-    else:
+    # --- Filtrage des données ---
+    data = df[df["nom_jeu"] == jeu]
+
+    if prix != "Tous":
         try:
             prix_val = float(prix)
-            data = df[(df["nom_jeu"] == jeu) & (df["prix_ticket"] == prix_val)]
+            data = data[np.isclose(data["prix_ticket"], prix_val)]
         except ValueError:
             data = pd.DataFrame()
 
@@ -120,18 +121,39 @@ def update_graph(df, gain_cols, prix_var, jeu_var, ax, canvas, stats_label):
         stats_label.config(text="")
         return
 
-    gains = data[gain_cols].melt()["value"].dropna()
-    counts = gains.value_counts().sort_index()
+    # --- Calcul correct des gains (pondérés par les unités) ---
+    gains_df = data[gain_cols + ["unites"]].melt(
+        id_vars="unites",
+        value_vars=gain_cols,
+        value_name="gain"
+    ).dropna(subset=["gain"])
 
-    ax.barh(counts.index.astype(int).astype(str), counts.values)
+    gains_df["gain"] = gains_df["gain"].astype(int)
+
+    counts = (
+        gains_df
+        .groupby("gain", sort=True)["unites"]
+        .sum()
+    )
+
+    # --- Graphique ---
+    ax.barh(counts.index.astype(str), counts.values)
     ax.set_xlabel("Nombre de tickets")
-    ax.set_title(f"Gains - {jeu}")
+    ax.set_ylabel("Gain (€)")
+    ax.set_title(f"Répartition des gains – {jeu}")
+
+    # --- Statistiques ---
+    prix_affiche = (
+        "Tous"
+        if prix == "Tous"
+        else f"{prix} €"
+    )
 
     stats_label.config(text=f"""
 Jeu : {jeu}
-Prix : {data['prix_ticket'].iloc[0]} €
-Gain max : {int(gains.max())} €
-Tickets : {int(data['unites'].sum())}
+Prix : {prix_affiche}
+Gain max : {counts.index.max()} €
+Tickets gagnants : {int(counts.sum())}
 """)
 
     canvas.draw()
