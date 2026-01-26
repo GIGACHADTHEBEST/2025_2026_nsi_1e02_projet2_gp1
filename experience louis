@@ -72,19 +72,22 @@ def creer_filtres(root, df):
 
 
 def update_jeux(df, prix_var, jeu_var, jeu_menu):
-    # verif le prix choisi
-    if prix_var.get() == "Tous":
-        jeux = df[np.isclose(df["prix_ticket"], prix_val)]["nom_jeu"].unique()
+    prix = prix_var.get()
 
+    if prix == "Tous":
+        jeux = sorted(df["nom_jeu"].dropna().unique())
     else:
         try:
-            prix_val = float(prix_var.get())
-            jeux = sorted(df[df["prix_ticket"] == prix_val]["nom_jeu"].unique())
+            prix_val = float(prix)
+            jeux = sorted(
+                df[df["prix_ticket"] == prix_val]["nom_jeu"].dropna().unique()
+            )
         except ValueError:
             jeux = []
 
     jeu_menu["values"] = jeux
-    if len(jeux) > 0:
+
+    if jeux:
         jeu_var.set(jeux[0])
     else:
         jeu_var.set("")
