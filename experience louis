@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import tkinter as tk
 from tkinter import ttk
 import matplotlib.pyplot as plt
@@ -26,10 +27,11 @@ def nettoyer_donnees(df):
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
     # Créer une liste des colonnes de gains
-    gain_cols = []
-    for col in df.columns:
-        if col != "nom_jeu" and col != "prix_ticket" and col != "unites" and col != "totalgains":
-            gain_cols.append(col)
+    gain_cols = [
+    col for col in df.columns
+    if col not in ["nom_jeu", "prix_ticket", "unites", "totalgains"]
+    ]
+
 
     return df, gain_cols
 
@@ -72,7 +74,8 @@ def creer_filtres(root, df):
 def update_jeux(df, prix_var, jeu_var, jeu_menu):
     # verif le prix choisi
     if prix_var.get() == "Tous":
-        jeux = df["nom_jeu"].unique()
+        jeux = df[np.isclose(df["prix_ticket"], prix_val)]["nom_jeu"].unique()
+
     else:
         try:
             prix_val = float(prix_var.get())
@@ -121,7 +124,7 @@ def update_graph(df, gain_cols, prix_var, jeu_var, ax, canvas, stats_label):
         stats_label.config(text="")
         return
 
-    # --- Calcul correct des gains (pondérés par les unités) ---
+    # Calcul correct des gains (les unités)
     gains_df = data[gain_cols + ["unites"]].melt(
         id_vars="unites",
         value_vars=gain_cols,
@@ -130,19 +133,16 @@ def update_graph(df, gain_cols, prix_var, jeu_var, ax, canvas, stats_label):
 
     gains_df["gain"] = gains_df["gain"].astype(int)
 
-    counts = (
-        gains_df
-        .groupby("gain", sort=True)["unites"]
-        .sum()
-    )
+    counts = gains_df.groupby("gain", sort=True)["unites"].sum()
 
-    # --- Graphique ---
+
+    # Graphique 
     ax.barh(counts.index.astype(str), counts.values)
     ax.set_xlabel("Nombre de tickets")
     ax.set_ylabel("Gain (€)")
     ax.set_title(f"Répartition des gains – {jeu}")
 
-    # --- Statistiques ---
+    # Statistiques
     prix_affiche = (
         "Tous"
         if prix == "Tous"
