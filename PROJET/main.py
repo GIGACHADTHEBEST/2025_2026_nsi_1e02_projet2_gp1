@@ -1,7 +1,7 @@
 import tkinter as tk
-from model import JeuxModel
-from view import JeuxView
-from controller import JeuxController
+from PROJET.model import JeuxModel
+from PROJET.view import JeuxView
+from PROJET.controller import JeuxController
 
 
 def main():
