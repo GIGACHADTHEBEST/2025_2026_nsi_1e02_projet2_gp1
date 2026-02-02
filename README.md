@@ -15,7 +15,7 @@ TACHE A FAIRE:
 - faire une interface de bienvenue et de presentation avec:
   
    bouton pour accéder aux statistiques
-     bouton pour revenir
+    - avec bouton pour revenir
   
   bouton pour quitter le programmme
   
