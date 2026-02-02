@@ -180,6 +180,7 @@ def main():
         )
     )
 
+
     update_graph(df, gain_cols, prix_var, jeu_var, ax, canvas, stats_label)
 
     root.mainloop()
