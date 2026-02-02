@@ -41,7 +41,7 @@ class Controller:
         gains = data[self.model.gain_cols].melt()["value"].dropna()
         counts = gains.value_counts().sort_index()
 
-        ax.barh(count.index.map(str), counts.values)
+        ax.barh(counts.index.map(str), counts.values)
         ax.set_xlabel("Nombre de tickets")
         ax.set_title(f"Gains - {jeu}")
 
