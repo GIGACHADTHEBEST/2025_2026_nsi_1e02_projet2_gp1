@@ -1,15 +1,14 @@
 import tkinter as tk
-from projet.model import JeuxModel
-from projet.view import JeuxView
-from projet.controller import JeuxController
-
+from projet.model import Model
+from projet.view import View
+from projet.controller import Controller
+from projet.__init__ import Init
 
 def main():
     root = tk.Tk()
-
-    model = JeuxModel("jeux.csv")
-    view = JeuxView(root)
-    JeuxController(model, view)
+    model = Model("jeux.csv")
+    view = View(root)
+    Controller(model, view)
 
     root.mainloop()
 
