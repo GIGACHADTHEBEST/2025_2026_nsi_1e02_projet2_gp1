@@ -6,7 +6,7 @@ class Controller:
         self._initialiser_filtres()
         self._connecter_evenements()
         self.update_graph()
-
+    
     def _initialiser_filtres(self):
         prix_list = ["Tous"] + self.model.get_prix_disponibles()
         self.view.prix_menu["values"] = prix_list
@@ -41,7 +41,7 @@ class Controller:
         gains = data[self.model.gain_cols].melt()["value"].dropna()
         counts = gains.value_counts().sort_index()
 
-        ax.barh(counts.index.astype(int).astype(str), counts.values)
+        ax.barh(count.index.map(str), counts.values)
         ax.set_xlabel("Nombre de tickets")
         ax.set_title(f"Gains - {jeu}")
 
