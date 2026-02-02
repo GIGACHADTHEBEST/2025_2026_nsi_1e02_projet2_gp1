@@ -20,7 +20,7 @@ TACHE A FAIRE:
   bouton pour quitter le programmme
   
   bouton pour acceder au simulateur:
-    laissez l'utilisateur choisir le jeu
-    jeu avec les bonnes probas
-    afficahge s'il a perdu ou gagné
-    bouton pour revenir
+    - laissez l'utilisateur choisir le jeu
+    - jeu avec les bonnes probas
+    - afficahge s'il a perdu ou gagné
+    - bouton pour revenir
