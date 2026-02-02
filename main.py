@@ -1,7 +1,7 @@
 import tkinter as tk
-from projet.model import Model
-from projet.view import View
-from projet.controller import Controller
+from PROJET.model import Model
+from PROJET.view import View
+from PROJET.controller import Controller
 
 def main():
     root = tk.Tk()
