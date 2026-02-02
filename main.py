@@ -2,7 +2,6 @@ import tkinter as tk
 from projet.model import Model
 from projet.view import View
 from projet.controller import Controller
-from projet.__init__ import Init
 
 def main():
     root = tk.Tk()
