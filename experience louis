@@ -1,0 +1,189 @@
+import pandas as pd
+import tkinter as tk
+from tkinter import ttk
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+
+# DONNÉES
+
+def charger_donnees(fichier):
+    return pd.read_csv(fichier)
+
+
+def nettoyer_donnees(df):
+    df.columns = df.columns.str.replace(" ", "")
+
+    # changer les noms des colones pour qu'ils soient plus lisible (entre guillemet)
+    df = df.rename(columns={
+        "jeu": "nom_jeu",
+        "prix": "prix_ticket"
+    })
+
+    # pour convertir les colonnes en nombres (sauf le nom du jeu)
+    for col in df.columns:
+        if col != "nom_jeu":
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    # Créer une liste des colonnes de gains
+    gain_cols = []
+    for col in df.columns:
+        if col != "nom_jeu" and col != "prix_ticket" and col != "unites" and col != "totalgains":
+            gain_cols.append(col)
+
+    return df, gain_cols
+
+# INTERFACE
+
+
+def creer_fenetre():
+    root = tk.Tk()
+    root.title("Jeux à gratter")
+    root.geometry("900x700")
+    return root
+
+
+def creer_filtres(root, df):
+    # faire la fenetre
+    frame = tk.Frame(root)
+    frame.pack(pady=10)
+
+    # variables pour garder ce que l'utilisateur choisit autrement dit les filtres
+    prix_var = tk.StringVar(value="Tous")
+    jeu_var = tk.StringVar()
+
+    # liste des prix dans le tableau
+    prix_list = ["Tous"] + sorted(df["prix_ticket"].dropna().unique())  # pour trier cete liste
+
+    # ajouter le texte prix et le menu pour choisir le prix
+    ttk.Label(frame, text="Prix (€)").grid(row=0, column=0)
+    ttk.Combobox(frame, textvariable=prix_var, values=prix_list, state="readonly").grid(row=0, column=1)
+
+    # ajouter le texte jeu et le menu pour choisir le jeu
+    ttk.Label(frame, text="Jeu").grid(row=0, column=2)
+    jeu_menu = ttk.Combobox(frame, textvariable=jeu_var, state="readonly")
+    jeu_menu.grid(row=0, column=3)
+
+    # retourner les choses qu'on va utiliser après
+    return prix_var, jeu_var, jeu_menu
+
+
+
+def update_jeux(df, prix_var, jeu_var, jeu_menu):
+    # verif le prix choisi
+    if prix_var.get() == "Tous":
+        jeux = df["nom_jeu"].unique()
+    else:
+        try:
+            prix_val = float(prix_var.get())
+            jeux = sorted(df[df["prix_ticket"] == prix_val]["nom_jeu"].unique())
+        except ValueError:
+            jeux = []
+
+    jeu_menu["values"] = jeux
+    if len(jeux) > 0:
+        jeu_var.set(jeux[0])
+    else:
+        jeu_var.set("")
+
+    
+
+
+# GRAPHIQUE
+
+
+def creer_graphique(root):
+    fig, ax = plt.subplots(figsize=(8, 4))
+    canvas = FigureCanvasTkAgg(fig, root)
+    canvas.get_tk_widget().pack()
+    return fig, ax, canvas
+
+
+def update_graph(df, gain_cols, prix_var, jeu_var, ax, canvas, stats_label):
+    ax.clear()
+
+    jeu = jeu_var.get()
+    prix = prix_var.get()
+
+    if prix == "Tous":
+        data = df[df["nom_jeu"] == jeu]
+    else:
+        try:
+            prix_val = float(prix)
+            data = df[(df["nom_jeu"] == jeu) & (df["prix_ticket"] == prix_val)]
+        except ValueError:
+            data = pd.DataFrame()
+
+    if data.empty:
+        ax.set_title("Aucune donnée")
+        canvas.draw()
+        stats_label.config(text="")
+        return
+
+    gains = data[gain_cols].melt()["value"].dropna()
+    counts = gains.value_counts().sort_index()
+
+    ax.barh(counts.index.astype(int).astype(str), counts.values)
+    ax.set_xlabel("Nombre de tickets")
+    ax.set_title(f"Gains - {jeu}")
+
+    stats_label.config(text=f"""
+Jeu : {jeu}
+Prix : {data['prix_ticket'].iloc[0]} €
+Gain max : {int(gains.max())} €
+Tickets : {int(data['unites'].sum())}
+""")
+
+    canvas.draw()
+
+
+# BOUTONS POUR METTRE A JOUR ET POUR QUITTER
+
+def creer_boutons(root, update_callback):
+    frame = tk.Frame(root)
+    frame.pack(pady=10)
+
+    ttk.Button(frame, text="Actualiser",
+               command=update_callback).grid(row=0, column=0, padx=5)
+    ttk.Button(frame, text="Quitter",
+               command=root.destroy).grid(row=0, column=1, padx=5)
+
+
+
+# PROGRAMME PRINCIPAL
+
+
+def main():
+    df = charger_donnees("jeux.csv")
+    df, gain_cols = nettoyer_donnees(df)
+
+    root = creer_fenetre()
+
+    prix_var, jeu_var, jeu_menu = creer_filtres(root, df)
+
+    fig, ax, canvas = creer_graphique(root)
+
+    stats_label = ttk.Label(root, text="", justify="left")
+    stats_label.pack(pady=10)
+
+    prix_var.trace_add(
+        "write",
+        lambda *args: update_jeux(df, prix_var, jeu_var, jeu_menu)
+    )
+
+    update_jeux(df, prix_var, jeu_var, jeu_menu)
+
+    creer_boutons(
+        root,
+        lambda: update_graph(
+            df, gain_cols, prix_var, jeu_var, ax, canvas, stats_label
+        )
+    )
+
+
+    update_graph(df, gain_cols, prix_var, jeu_var, ax, canvas, stats_label)
+
+    root.mainloop()
+
+
+main()
