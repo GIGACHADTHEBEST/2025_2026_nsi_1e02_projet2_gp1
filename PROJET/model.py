@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-class JeuxModel:
+class Model:
     def __init__(self, fichier):
         self.df = self._charger_donnees(fichier)
         self.gain_cols = self._nettoyer_donnees()

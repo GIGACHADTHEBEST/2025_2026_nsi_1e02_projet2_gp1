@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
-class JeuxView:
+class View:
     def __init__(self, root):
         self.root = root
         self.root.title("Jeux à gratter")
