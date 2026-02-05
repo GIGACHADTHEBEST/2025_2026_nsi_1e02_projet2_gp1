@@ -1,168 +1,135 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
+import csv
+import random
+import os
 
-st.set_page_config(
-    page_title="Jeux d'argent – simulations et statistiques",
-    layout="wide"
-)
-
-# ---------------------------
+# =========================
 # Chargement et nettoyage CSV
-# ---------------------------
-@st.cache_data
+# =========================
+def to_int(value):
+    if value == "" or value is None:
+        return 0
+    return int(value.replace(" ", "").replace(" ", ""))
+
 def load_data():
-    df = pd.read_csv("jeux_fdj.csv")
+    path = os.path.join(os.path.dirname(__file__), "jeux_fdj.csv")
+    jeux = []
 
-    # Nettoyage des colonnes numériques
-    for col in df.columns[1:]:
-        df[col] = (
-            df[col]
-            .astype(str)
-            .str.replace(" ", "", regex=False)
-            .str.replace(" ", "", regex=False)
-            .replace("", np.nan)
-            .astype(float)
-        )
+    with open(path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            jeu = {
+                "nom": row["jeu"],
+                "prix": to_int(row["prix"]),
+                "unites": to_int(row["unites"]),
+                "total_gains": to_int(row["total_gains"]),
+                "gains": {}
+            }
 
-    return df
+            for key, value in row.items():
+                if key.isdigit():
+                    jeu["gains"][int(key)] = to_int(value)
 
+            jeux.append(jeu)
 
-df = load_data()
-
-# Colonnes correspondant aux gains possibles
-gain_cols = df.columns[4:]
-
-# ---------------------------
-# Fonctions utiles
-# ---------------------------
-def simulate_ticket(row):
-    """Simule un ticket unique"""
-    prix = row["prix"]
-    total_units = row["unites"]
-
-    gains = []
-    for g in gain_cols:
-        count = row[g]
-        if not np.isnan(count) and count > 0:
-            gains += [float(g)] * int(count)
-
-    # Perdant
-    losing = int(total_units - len(gains))
-    gains += [0] * losing
-
-    result = np.random.choice(gains)
-    return result - prix
+    return jeux
 
 
-def simulate_n_tickets(row, n):
-    return [simulate_ticket(row) for _ in range(n)]
+# =========================
+# Simulation d’un ticket
+# =========================
+def simulate_one(jeu):
+    gains_possibles = []
+
+    for gain, count in jeu["gains"].items():
+        gains_possibles += [gain] * count
+
+    pertes = jeu["unites"] - len(gains_possibles)
+    gains_possibles += [0] * pertes
+
+    gain = random.choice(gains_possibles)
+    return gain - jeu["prix"]
 
 
-# ===========================
-# PAGE D’ACCUEIL
-# ===========================
-st.title("🎰 Jeux d’argent : quelles sont vraiment vos chances de gagner ?")
+# =========================
+# Simulation de N tickets
+# =========================
+def simulate_n(jeu, n):
+    results = []
+    for _ in range(n):
+        results.append(simulate_one(jeu))
+    return results
 
-st.markdown(
-    """
-Les jeux à gratter promettent souvent des gains attractifs…  
-**mais se valent-ils réellement ?**
 
-À partir des **données officielles de la Française des Jeux**,  
-nous avons analysé les principaux tickets disponibles afin de mieux comprendre :
+# =========================
+# Espérance mathématique
+# =========================
+def esperance(jeu):
+    return (jeu["total_gains"] - jeu["prix"] * jeu["unites"]) / jeu["unites"]
 
-- vos **probabilités de gain**
-- les **montants espérés**
-- les **différences entre les jeux**
 
-👉 Les chances de gagner sont **strictement identiques** à celles du commerce.
+# =========================
+# Menu
+# =========================
+def choose_game(jeux):
+    for i, jeu in enumerate(jeux):
+        print(f"{i + 1}. {jeu['nom']} ({jeu['prix']} €)")
+    index = int(input("Choisissez un jeu : ")) - 1
+    return jeux[index]
 
-**Simuler pour mieux comprendre** :  
-vous pouvez lancer des simulations pour observer le hasard sur le long terme.
-"""
-)
 
-st.divider()
+def menu():
+    jeux = load_data()
 
-# ===========================
-# ONGLETS
-# ===========================
-tab1, tab2, tab3 = st.tabs(
-    ["🎲 Simulation simple", "🔁 Simulation 10 000 tickets", "📊 Statistiques"]
-)
+    while True:
+        print("\n=== JEUX D’ARGENT – SIMULATIONS FDJ ===")
+        print("1. Simulation d’un ticket")
+        print("2. Simulation de plusieurs tickets")
+        print("3. Statistiques des jeux")
+        print("0. Quitter")
 
-# ===========================
-# ONGLET 1 — SIMULATION SIMPLE
-# ===========================
-with tab1:
-    st.header("🎲 Simulation d’un ticket")
+        choice = input("Votre choix : ")
 
-    jeu = st.selectbox("Choisissez un jeu :", df["jeu"])
-    row = df[df["jeu"] == jeu].iloc[0]
+        # -------------------------
+        if choice == "1":
+            jeu = choose_game(jeux)
+            resultat = simulate_one(jeu)
 
-    if st.button("Gratter un ticket 🎟️"):
-        gain = simulate_ticket(row)
+            if resultat >= 0:
+                print(f"🎉 Gain : {resultat} €")
+            else:
+                print(f"❌ Perte : {-resultat} €")
 
-        if gain >= 0:
-            st.success(f"🎉 Gain : {gain:.2f} €")
+            print(f"📉 Espérance : {esperance(jeu):.2f} €")
+
+        # -------------------------
+        elif choice == "2":
+            jeu = choose_game(jeux)
+            n = int(input("Nombre de tickets à simuler : "))
+
+            results = simulate_n(jeu, n)
+
+            print(f"\n💰 Gain total : {sum(results):.2f} €")
+            print(f"📊 Gain moyen : {sum(results)/n:.2f} €")
+            print(f"🎯 Tickets gagnants : {sum(1 for r in results if r > 0) / n * 100:.2f} %")
+
+        # -------------------------
+        elif choice == "3":
+            print("\n📊 ESPÉRANCE PAR JEU")
+            jeux_sorted = sorted(jeux, key=esperance, reverse=True)
+
+            for jeu in jeux_sorted:
+                print(f"{jeu['nom']:<30} {esperance(jeu):>6.2f} €")
+
+        # -------------------------
+        elif choice == "0":
+            print("Au revoir 👋")
+            break
+
         else:
-            st.error(f"❌ Perte : {abs(gain):.2f} €")
-
-        esperance = (row["total_gains"] - row["prix"] * row["unites"]) / row["unites"]
-        st.info(f"📉 Espérance mathématique par ticket : {esperance:.2f} €")
+            print("Choix invalide.")
 
 
-# ===========================
-# ONGLET 2 — SIMULATION MASSIVE
-# ===========================
-with tab2:
-    st.header("🔁 Simulation de plusieurs tickets")
-
-    jeu2 = st.selectbox("Choisissez un jeu :", df["jeu"], key="jeu2")
-    row2 = df[df["jeu"] == jeu2].iloc[0]
-
-    n = st.slider("Nombre de tickets simulés", 100, 100000, 10000, step=100)
-
-    if st.button("Lancer la simulation 🚀"):
-        results = simulate_n_tickets(row2, n)
-        results = np.array(results)
-
-        st.metric("💰 Gain total", f"{results.sum():.2f} €")
-        st.metric("📊 Gain moyen", f"{results.mean():.2f} €")
-        st.metric("📉 % de tickets gagnants", f"{(results > 0).mean() * 100:.2f} %")
-
-        fig, ax = plt.subplots()
-        ax.plot(np.cumsum(results))
-        ax.set_title("Évolution du solde")
-        ax.set_xlabel("Nombre de tickets")
-        ax.set_ylabel("Solde (€)")
-        st.pyplot(fig)
-
-
-# ===========================
-# ONGLET 3 — STATISTIQUES
-# ===========================
-with tab3:
-    st.header("📊 Comparaison des jeux")
-
-    stats = []
-
-    for _, row in df.iterrows():
-        esperance = (row["total_gains"] - row["prix"] * row["unites"]) / row["unites"]
-        stats.append({
-            "Jeu": row["jeu"],
-            "Prix (€)": row["prix"],
-            "Espérance (€)": esperance
-        })
-
-    stats_df = pd.DataFrame(stats).sort_values("Espérance (€)", ascending=False)
-
-    st.dataframe(stats_df, use_container_width=True)
-
-    fig, ax = plt.subplots(figsize=(10, 5))
-    ax.barh(stats_df["Jeu"], stats_df["Espérance (€)"])
-    ax.axvline(0, color="red", linestyle="--")
-    ax.set_title("Espérance mathématique par jeu")
-    st.pyplot(fig)
+# =========================
+# Lancement
+# =========================
+menu()
