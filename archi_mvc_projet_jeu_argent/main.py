@@ -1,14 +1,17 @@
 import tkinter as tk
-from model.catalogue import Catalogue
-from controller.accueil_controller import AccueilController
+from archi_mvc_projet_jeu_argent.model.catalogue import Catalogue
+from archi_mvc_projet_jeu_argent.controller.accueil_controller import AccueilController
 
-if __name__ == "__main__":
+
+
+def main():
     root = tk.Tk()
 
-    # Chargement des données
     catalogue = Catalogue("data/jeux.csv")
-
-    # Lancement de l'accueil
     AccueilController(root, catalogue)
 
     root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
