@@ -1,7 +1,6 @@
 import tkinter as tk
 from model.catalogue import Catalogue
-from controller.stats_controller import StatsController
-
+from controller.accueil_controller import AccueilController
 
 if __name__ == "__main__":
     root = tk.Tk()
