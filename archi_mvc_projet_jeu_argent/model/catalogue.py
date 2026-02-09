@@ -7,32 +7,31 @@ class Catalogue:
         self.jeux = self.charger_csv(chemin_csv)
 
     def charger_csv(self, chemin):
-    jeux = []
+        jeux = []
 
-    with open(chemin, newline="", encoding="utf-8") as fichier:
-        lecteur = csv.DictReader(fichier)
+        with open(chemin, newline="", encoding="utf-8") as fichier:
+            lecteur = csv.DictReader(fichier)
 
-        for ligne in lecteur:
-            nom = ligne["jeu"]
+            for ligne in lecteur:
+                nom = ligne["jeu"]
 
-            prix = int(ligne["prix"].replace(" ", "").replace(" ", ""))
-            unites = int(ligne["unites"].replace(" ", "").replace(" ", ""))
+                prix = int(ligne["prix"].replace(" ", "").replace("\u202f", ""))
+                unites = int(ligne["unites"].replace(" ", "").replace("\u202f", ""))
 
-            gains = {}
+                gains = {}
 
-            for colonne, valeur in ligne.items():
-                if colonne in ("jeu", "prix", "unites", "total_gains"):
-                    continue
+                for colonne, valeur in ligne.items():
+                    if colonne in ("jeu", "prix", "unites", "total_gains"):
+                        continue
 
-                if valeur and valeur.strip():
-                    gain = int(colonne.replace(" ", "").replace(" ", ""))
-                    nb = int(valeur.replace(" ", "").replace(" ", ""))
-                    gains[gain] = nb
+                    if valeur and valeur.strip():
+                        gain = int(colonne.replace(" ", "").replace("\u202f", ""))
+                        nb = int(valeur.replace(" ", "").replace("\u202f", ""))
+                        gains[gain] = nb
 
-            jeux.append(Jeu(nom, prix, unites, gains))
+                jeux.append(Jeu(nom, prix, unites, gains))
 
-    return jeux
-
+        return jeux
 
     def get_jeu(self, nom):
         for jeu in self.jeux:
