@@ -26,16 +26,15 @@ def ouvrir_statistiques():
     fen1.title("Statistiques")
     fen1.geometry("300x200")
 
-    label = tk.Label(
+    tk.Label(
         fen1,
         text="Bienvenue dans les statistiques",
         font=("Arial", 12)
-    )
-    label.pack(pady=40)
+    ).pack(pady=40)
 
 
 def ouvrir_jeux():
-    global resultat_label, stats_label
+    global tickets, argent_net
 
     fenetre = tk.Toplevel(root)
     fenetre.title("Ticket à gratter")
@@ -52,18 +51,16 @@ def ouvrir_jeux():
         return 0
 
     def gratter_n(n):
+        nonlocal resultat_label, stats_label
         global tickets, argent_net
 
         gain_total = 0
-        depense = n * PRIX_TICKET
 
         for _ in range(n):
             gain = gratter_ticket()
             gain_total += gain
             argent_net += gain - PRIX_TICKET
             tickets += 1
-
-        argent_depense_total = tickets * PRIX_TICKET
 
         if n == 1:
             if gain_total == 0:
@@ -76,21 +73,23 @@ def ouvrir_jeux():
                 fg="blue"
             )
 
+        depense_totale = tickets * PRIX_TICKET
+
         if argent_net > 0:
-            net_text = f"Argent gagné : {argent_net} €"
+            net = f"Argent gagné : {argent_net} €"
             couleur = "green"
         elif argent_net < 0:
-            net_text = f"Argent perdu : {-argent_net} €"
+            net = f"Argent perdu : {-argent_net} €"
             couleur = "red"
         else:
-            net_text = "Ni gain ni perte"
+            net = "Ni gain ni perte"
             couleur = "black"
 
         stats_label.config(
             text=(
                 f"Tickets grattés : {tickets}\n"
-                f"Prix total : {argent_depense_total} €\n"
-                f"{net_text}"
+                f"Prix total : {depense_totale} €\n"
+                f"{net}"
             ),
             fg=couleur
         )
@@ -115,16 +114,16 @@ def ouvrir_jeux():
     tk.Button(
         frame,
         text="Gratter 1 ticket (5 €)",
-        font=("Arial", 12),
         bg="#FFD700",
+        font=("Arial", 12),
         command=lambda: gratter_n(1)
     ).grid(row=0, column=0, padx=10)
 
     tk.Button(
         frame,
         text="Gratter 100 tickets (500 €)",
-        font=("Arial", 12),
         bg="#FFB347",
+        font=("Arial", 12),
         command=lambda: gratter_n(100)
     ).grid(row=0, column=1, padx=10)
 
@@ -140,8 +139,16 @@ def ouvrir_jeux():
     )
     stats_label.pack(pady=15)
 
+    # 🔙 BOUTON RETOUR MENU
+    tk.Button(
+        fenetre,
+        text="⬅ Revenir au menu principal",
+        font=("Arial", 11),
+        command=fenetre.destroy
+    ).pack(pady=10)
 
-# ===== Fenêtre principale =====
+
+# ===== MENU PRINCIPAL =====
 root = tk.Tk()
 root.title("Interface de Bienvenue")
 root.geometry("400x300")
