@@ -52,7 +52,7 @@ def ouvrir_statistiques():
     couleur_index = 0
 
     canvas.create_text(
-        850, 80,
+        850, 65,
         text="Statistiques détaillées",
         font=("Arial", 14, "bold"),
         anchor="w"

@@ -14,15 +14,19 @@ class Catalogue:
 
             for ligne in lecteur:
                 nom = ligne["jeu"]
-                prix = int(ligne["prix"])
-                unites = int(ligne["unites"].replace(" ", ""))
+
+                prix = int(ligne["prix"].replace(" ", "").replace("\u202f", ""))
+                unites = int(ligne["unites"].replace(" ", "").replace("\u202f", ""))
 
                 gains = {}
 
                 for colonne, valeur in ligne.items():
-                    if colonne.isdigit() and valeur:
-                        gain = int(colonne.replace(" ", ""))
-                        nb = int(valeur.replace(" ", ""))
+                    if colonne in ("jeu", "prix", "unites", "total_gains"):
+                        continue
+
+                    if valeur and valeur.strip():
+                        gain = int(colonne.replace(" ", "").replace("\u202f", ""))
+                        nb = int(valeur.replace(" ", "").replace("\u202f", ""))
                         gains[gain] = nb
 
                 jeux.append(Jeu(nom, prix, unites, gains))
