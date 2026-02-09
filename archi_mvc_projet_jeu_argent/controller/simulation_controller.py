@@ -34,3 +34,4 @@ class SimulationController:
                 f"Coût total : {cout_total} €\n"
                 f"Gains totaux : {gain_total} €\n\n"
                 f"Bilan : {bilan} €"
+            ))
