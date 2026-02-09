@@ -2,9 +2,6 @@ import tkinter as tk
 import random
 from math import ceil
 
-# =========================
-# ===== STATISTIQUES ======
-# =========================
 
 def ouvrir_statistiques():
     jeu = {
@@ -123,9 +120,7 @@ def ouvrir_statistiques():
     ).place(x=20, y=20)
 
 
-# ==================
-# ===== JEU ========
-# ==================
+
 
 PRIX_TICKET = 5
 
@@ -259,10 +254,6 @@ def ouvrir_jeux():
     ).pack(pady=10)
 
 
-# =========================
-# ===== MENU PRINCIPAL ====
-# =========================
-
 root = tk.Tk()
 root.title("Menu principal")
 root.geometry("400x300")
@@ -275,7 +266,7 @@ tk.Label(
 
 tk.Button(
     root,
-    text="📊 Statistiques",
+    text=" Statistiques",
     font=("Arial", 12),
     width=20,
     command=ouvrir_statistiques
@@ -283,7 +274,7 @@ tk.Button(
 
 tk.Button(
     root,
-    text="🎟 Jeu à gratter",
+    text=" Jeu à gratter",
     font=("Arial", 12),
     width=20,
     command=ouvrir_jeux
