@@ -18,11 +18,17 @@ class StatsView:
         self.combo_jeu = ttk.Combobox(self.window, state="readonly", width=30)
         self.combo_jeu.pack(pady=10)
 
-        self.btn_calculer = ttk.Button(self.window, text="📊 Calculer")
+        self.btn_calculer = ttk.Button(self.window, text=" Calculer")
         self.btn_calculer.pack(pady=15)
 
         self.label_stats = ttk.Label(self.window, text="", justify="left")
         self.label_stats.pack(pady=20)
+        self.btn_visualiser = ttk.Button(
+        self.window,
+        text=" Visualisation avancée"
+        )
+        self.btn_visualiser.pack(pady=5)
+
 
 
 if __name__ == "__main__":
