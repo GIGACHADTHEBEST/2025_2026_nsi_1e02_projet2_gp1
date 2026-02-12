@@ -11,8 +11,8 @@ def nettoyer_nombre(texte):
     return int(
         texte
         .replace(" ", "")
-        .replace("\u202f", "")  # espace insécable fine
-        .replace("\xa0", "")    # espace insécable classique
+        .replace("\u202f", "")
+        .replace("\xa0", "")
     )
 
 def charger_jeux_depuis_csv(fichier):
@@ -27,17 +27,28 @@ def charger_jeux_depuis_csv(fichier):
 
                 gains = {}
                 total_gagnants = 0
+
                 for col, val in row.items():
-                    if col.isdigit() and val.strip():
+                    col_nettoye = col.replace(" ", "").replace("\u202f", "").replace("\xa0", "")
+                    if col_nettoye.isdigit() and val and val.strip():
                         nb = nettoyer_nombre(val)
-                        gain = int(col)
+                        gain = int(col_nettoye)
                         gains[gain] = nb
                         total_gagnants += nb
-                gains[0] = tickets - total_gagnants
+
+                perdants = tickets - total_gagnants
+                if perdants < 0:
+                    print(f"⚠ Erreur de cohérence pour {nom}")
+                    perdants = 0
+
+                gains[0] = perdants
                 jeux[nom] = {"prix": prix, "tickets": tickets, "gains": gains}
+
     except FileNotFoundError:
         print("CSV non trouvé, aucun jeu disponible.")
+
     return jeux
+
 
 JEUX = charger_jeux_depuis_csv("archi_mvc_projet_jeu_argent/data/jeux.csv")
 
@@ -45,10 +56,10 @@ JEUX = charger_jeux_depuis_csv("archi_mvc_projet_jeu_argent/data/jeux.csv")
 # ===== PARAMÈTRES VISUELS
 # =========================
 
-CARRE_PAR_TICKETS = 10_000
-TAILLE = 18
+CARRE_PAR_TICKETS = 45_000
+TAILLE = 19
 MARGE = 4
-PAR_LIGNE = 35
+PAR_LIGNE = 34
 
 COULEURS = [
     "#4e79a7", "#f28e2b", "#e15759", "#76b7b2",
@@ -63,21 +74,23 @@ COULEURS = [
 def fenetre_stats(nom_jeu, jeu):
     stats = tk.Toplevel(root)
     stats.title(f"Statistiques – {nom_jeu}")
-    stats.geometry("1200x650")
+    stats.geometry("1350x880")  # ← plus haut
 
     canvas = tk.Canvas(stats, bg="white")
     canvas.pack(fill="both", expand=True)
 
-    canvas.create_text(600, 30, text=f"{nom_jeu} – répartition réelle des issues",
-                       font=("Arial", 16, "bold"))
+    canvas.create_text(675, 30,
+                       text=f"{nom_jeu} – répartition réelle des issues",
+                       font=("Arial", 18, "bold"))
 
-    x0, y0 = 20, 80
+    x0, y0 = 40, 85
     index = 0
-    stats_y = 100
+    stats_y = 70  # ← encore remonté
     couleur_index = 0
 
-    canvas.create_text(850, 80, text="Statistiques détaillées",
-                       font=("Arial", 14, "bold"), anchor="w")
+    canvas.create_text(850, 55,
+                       text="Statistiques détaillées",
+                       font=("Arial", 16, "bold"), anchor="w")
 
     for gain, nb_tickets in sorted(jeu["gains"].items()):
         couleur = COULEURS[couleur_index % len(COULEURS)]
@@ -90,38 +103,44 @@ def fenetre_stats(nom_jeu, jeu):
         for _ in range(nb_carres):
             cx = x0 + (index % PAR_LIGNE) * (TAILLE + MARGE)
             cy = y0 + (index // PAR_LIGNE) * (TAILLE + MARGE)
-            canvas.create_rectangle(cx, cy, cx + TAILLE, cy + TAILLE, fill=couleur, outline="")
+            canvas.create_rectangle(cx, cy, cx + TAILLE, cy + TAILLE,
+                                    fill=couleur, outline="")
             index += 1
 
-        canvas.create_rectangle(820, stats_y - 10, 840, stats_y + 10, fill=couleur, outline="")
+        canvas.create_rectangle(820, stats_y - 10, 845, stats_y + 10,
+                                fill=couleur, outline="")
+
         canvas.create_text(
-            850, stats_y,
-            text=(f"Gain {gain} €\n{nb_tickets:,} tickets • {proba:.4f} %\nGains totaux : {gain_total:,} €").replace(",", " "),
-            anchor="w", font=("Arial", 10)
+            855, stats_y,
+            text=(f"Gain {gain} €\n"
+                  f"{nb_tickets:,} tickets • {proba:.4f} %\n"
+                  f"Gains totaux : {gain_total:,} €").replace(",", " "),
+            anchor="w", font=("Arial", 11)
         )
-        stats_y += 60
+        stats_y += 65
 
     mises = jeu["prix"] * jeu["tickets"]
     gains_totaux = sum(g * n for g, n in jeu["gains"].items())
     perte_moyenne = (mises - gains_totaux) / jeu["tickets"]
+    trj = gains_totaux / mises * 100
 
     canvas.create_text(
-        850, stats_y + 20,
-        text=(f"Prix du ticket : {jeu['prix']} €\nMise totale : {mises:,} €\n"
-              f"Gains redistribués : {gains_totaux:,} €\nPerte moyenne par ticket : {perte_moyenne:.2f} €").replace(",", " "),
-        anchor="w", font=("Arial", 11, "bold"), fill="darkred"
+        855, stats_y + 20,
+        text=(f"Prix du ticket : {jeu['prix']} €\n"
+              f"Mise totale : {mises:,} €\n"
+              f"Gains redistribués : {gains_totaux:,} €\n"
+              f"Taux de redistribution : {trj:.2f} %\n"
+              f"Perte moyenne par ticket : {perte_moyenne:.2f} €").replace(",", " "),
+        anchor="w", font=("Arial", 12, "bold"), fill="darkred"
     )
 
-    tk.Button(stats, text="⬅ Retour au menu", font=("Arial", 11), command=stats.destroy).pack(pady=10)
-
-def ouvrir_stats_csv():
-    nom = selection.get()
-    if nom:
-        fenetre_stats(nom, JEUX[nom])
+    tk.Button(stats, text="⬅ Retour au menu",
+              font=("Arial", 12), command=stats.destroy).pack(pady=15)
 
 # =========================
 # ===== JEU À GRATTER =====
 # =========================
+# (inchangé)
 
 PRIX_TICKET = 5
 
@@ -178,6 +197,7 @@ def ouvrir_jeux():
             resultat_label.config(text=f"{n} tickets grattés\nGain : {gain_total} €", fg="blue")
 
         depense_totale = tickets * PRIX_TICKET
+
         if argent_net > 0:
             net = f"Argent gagné : {argent_net} €"
             couleur = "green"
@@ -193,20 +213,31 @@ def ouvrir_jeux():
             fg=couleur
         )
 
-    tk.Label(fenetre, text="JEU DE TICKETS À GRATTER", font=("Arial", 16, "bold")).pack(pady=10)
-    resultat_label = tk.Label(fenetre, text="Clique pour gratter", font=("Arial", 18), fg="blue")
+    tk.Label(fenetre, text="JEU DE TICKETS À GRATTER",
+             font=("Arial", 16, "bold")).pack(pady=10)
+
+    resultat_label = tk.Label(fenetre, text="Clique pour gratter",
+                              font=("Arial", 18), fg="blue")
     resultat_label.pack(pady=15)
 
     frame = tk.Frame(fenetre)
     frame.pack(pady=10)
 
-    tk.Button(frame, text="Gratter 1 ticket (5 €)", bg="#FFD700", font=("Arial", 12), command=lambda: gratter_n(1)).grid(row=0, column=0, padx=10)
-    tk.Button(frame, text="Gratter 100 tickets (500 €)", bg="#FFB347", font=("Arial", 12), command=lambda: gratter_n(100)).grid(row=0, column=1, padx=10)
+    tk.Button(frame, text="Gratter 1 ticket (5 €)",
+              bg="#FFD700", font=("Arial", 12),
+              command=lambda: gratter_n(1)).grid(row=0, column=0, padx=10)
 
-    stats_label = tk.Label(fenetre, text="Tickets grattés : 0\nPrix total : 0 €\nNi gain ni perte", font=("Arial", 12), justify="left")
+    tk.Button(frame, text="Gratter 100 tickets (500 €)",
+              bg="#FFB347", font=("Arial", 12),
+              command=lambda: gratter_n(100)).grid(row=0, column=1, padx=10)
+
+    stats_label = tk.Label(fenetre,
+                           text="Tickets grattés : 0\nPrix total : 0 €\nNi gain ni perte",
+                           font=("Arial", 12), justify="left")
     stats_label.pack(pady=15)
 
-    tk.Button(fenetre, text="⬅ Retour au menu", font=("Arial", 11), command=fenetre.destroy).pack(pady=10)
+    tk.Button(fenetre, text="⬅ Retour au menu",
+              font=("Arial", 11), command=fenetre.destroy).pack(pady=10)
 
 # =========================
 # ===== MENU PRINCIPAL =====
@@ -214,21 +245,32 @@ def ouvrir_jeux():
 
 root = tk.Tk()
 root.title("Menu principal")
-root.geometry("400x350")
+root.geometry("400x400")
 
-tk.Label(root, text="Bienvenue", font=("Arial", 18, "bold")).pack(pady=20)
+tk.Label(root, text="Bienvenue",
+         font=("Arial", 18, "bold")).pack(pady=20)
 
-# Bouton jeu à gratter
-tk.Button(root, text="🎟 Jeu à gratter", font=("Arial", 12), width=25, command=ouvrir_jeux).pack(pady=10)
+tk.Button(root, text="🎟 Jeu à gratter",
+          font=("Arial", 12), width=25,
+          command=ouvrir_jeux).pack(pady=10)
 
-# Bouton statistiques CSV (si disponible)
 if JEUX:
     selection = tk.StringVar()
+    selection.set(next(iter(JEUX)))
+
     menu = tk.OptionMenu(root, selection, *JEUX.keys())
     menu.config(width=25, font=("Arial", 11))
     menu.pack(pady=10)
-    tk.Button(root, text="📊 Afficher les statistiques du jeu choisi", font=("Arial", 12), width=25, command=ouvrir_stats_csv).pack(pady=5)
+
+    tk.Button(root,
+              text="📊 Afficher les statistiques du jeu choisi",
+              font=("Arial", 12),
+              width=25,
+              command=lambda: fenetre_stats(selection.get(), JEUX[selection.get()])
+              ).pack(pady=5)
 else:
-    tk.Label(root, text="Aucun jeu disponible depuis le CSV.", fg="red").pack(pady=20)
+    tk.Label(root,
+             text="Aucun jeu disponible depuis le CSV.",
+             fg="red").pack(pady=20)
 
 root.mainloop()
