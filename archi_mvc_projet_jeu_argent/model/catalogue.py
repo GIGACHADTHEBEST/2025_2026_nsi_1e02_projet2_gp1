@@ -1,6 +1,7 @@
 import csv
 from model.jeu import Jeu
 
+
 class Catalogue:
     def __init__(self, fichier_csv):
         self.jeux = []
@@ -9,8 +10,8 @@ class Catalogue:
     def nettoyer_nombre(self, valeur):
         if not valeur:
             return 0
-        return int(valeur.replace(" ", "").replace(" ", ""))
-
+        valeur = "".join(valeur.split())
+        return int(valeur)
 
     def charger_csv(self, fichier_csv):
         with open(fichier_csv, encoding="utf-8") as f:
