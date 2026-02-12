@@ -27,3 +27,4 @@ class StatsController:
                 f"(Une espérance négative = perte moyenne)"
             )
         )
+    
