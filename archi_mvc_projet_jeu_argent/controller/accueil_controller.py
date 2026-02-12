@@ -24,3 +24,5 @@ class AccueilController:
 
     def ouvrir_stats(self):
         StatsController(self.root, self.catalogue)
+
+

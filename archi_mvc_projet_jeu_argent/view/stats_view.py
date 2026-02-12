@@ -23,3 +23,10 @@ class StatsView:
 
         self.label_stats = ttk.Label(self.window, text="", justify="left")
         self.label_stats.pack(pady=20)
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.withdraw()  # cache la fenêtre principale
+    app = StatsView(root)
+    root.mainloop()

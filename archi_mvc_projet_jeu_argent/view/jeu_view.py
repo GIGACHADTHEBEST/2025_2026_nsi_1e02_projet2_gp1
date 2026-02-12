@@ -30,3 +30,10 @@ class JeuView:
             font=("Helvetica", 12)
         )
         self.label_resultat.pack(pady=20)
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.withdraw()  # cache la fenêtre principale (optionnel)
+    app = JeuView(root)
+    root.mainloop()

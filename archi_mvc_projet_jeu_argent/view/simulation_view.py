@@ -22,8 +22,16 @@ class SimulationView:
         self.entry_nb = ttk.Entry(self.window, width=15)
         self.entry_nb.pack(pady=5)
 
-        self.btn_lancer = ttk.Button(self.window, text="🔁 Lancer la simulation")
+        self.btn_lancer = ttk.Button(self.window, text=" Lancer la simulation")
         self.btn_lancer.pack(pady=15)
 
         self.label_resultats = ttk.Label(self.window, text="", justify="left")
         self.label_resultats.pack(pady=20)
+
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.withdraw()  # cache la fenêtre principale
+    app = SimulationView(root)
+    root.mainloop()

@@ -45,3 +45,9 @@ class AccueilView:
             width=25
         )
         self.btn_stats.grid(row=2, column=0, padx=15, pady=10)
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = AccueilView(root)
+    root.mainloop()

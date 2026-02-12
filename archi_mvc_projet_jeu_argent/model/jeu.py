@@ -1,43 +1,27 @@
 import random
 
-
 class Jeu:
-    def __init__(self, nom, prix, unites, gains):
-        """
-        gains : dict {montant_gain (int) : nombre_de_tickets (int)}
-        """
+    def __init__(self, nom, prix, unites, gains_dict):
         self.nom = nom
         self.prix = prix
         self.unites = unites
-        self.gains = gains
+        self.gains_dict = gains_dict  # {montant_gain: nombre_de_tickets}
+
+        # Calcul des tickets perdants
+        total_gagnants = sum(gains_dict.values())
+        self.perdants = unites - total_gagnants
 
     def tirage_aleatoire(self):
-        """
-        Simule un ticket de façon réaliste
-        """
-        population = []
+        gains = []
+        poids = []
 
-        for gain, nb in self.gains.items():
-            population.extend([gain] * nb)
+        # Gains positifs
+        for montant, nb in self.gains_dict.items():
+            gains.append(int(montant))
+            poids.append(int(nb))
 
-        tickets_perdants = self.unites - sum(self.gains.values())
-        population.extend([0] * tickets_perdants)
+        # Ajouter les tickets perdants
+        gains.append(0)
+        poids.append(self.perdants)
 
-        return random.choice(population)
-
-    def proba_gagner(self):
-        """
-        Probabilité de gagner au moins quelque chose
-        """
-        return sum(self.gains.values()) / self.unites
-
-    def esperance(self):
-        """
-        Espérance mathématique du joueur
-        """
-        gain_total = 0
-        for gain, nb in self.gains.items():
-            gain_total += gain * nb
-
-        gain_moyen = gain_total / self.unites
-        return gain_moyen - self.prix
+        return random.choices(gains, weights=poids, k=1)[0]
