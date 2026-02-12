@@ -10,6 +10,20 @@ class Jeu:
         # Calcul des tickets perdants
         total_gagnants = sum(gains_dict.values())
         self.perdants = unites - total_gagnants
+    def proba_gagner(self):
+        total_gagnants = sum(self.gains_dict.values())
+        return total_gagnants / self.unites
+
+    def esperance(self):
+        esperance = 0
+
+        for montant, nb in self.gains_dict.items():
+            proba = nb / self.unites
+            esperance += montant * proba
+
+        # On retire le prix du ticket
+        return esperance - self.prix
+
 
     def tirage_aleatoire(self):
         gains = []

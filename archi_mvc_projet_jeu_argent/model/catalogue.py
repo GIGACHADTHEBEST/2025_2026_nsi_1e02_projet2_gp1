@@ -11,6 +11,7 @@ class Catalogue:
             return 0
         return int(valeur.replace(" ", "").replace(" ", ""))
 
+
     def charger_csv(self, fichier_csv):
         with open(fichier_csv, encoding="utf-8") as f:
             reader = csv.reader(f)

@@ -1,6 +1,7 @@
 class Statistiques:
     def __init__(self, jeu):
         self.jeu = jeu
+    
 
     def resume(self):
         return {
