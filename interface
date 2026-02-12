@@ -2,145 +2,164 @@ import tkinter as tk
 import random
 
 
-#FONCTIONS COULEURS
-
-
+# ========= COULEURS =========
 def get_ticket_colors():
-    """
-    Retourne un dictionnaire avec les couleurs du ticket.
-    Tu peux changer ici pour créer d'autres thèmes.
-    """
     return {
-        "background": "#FFEE88",     # Jaune "ticket à gratter"
-        "button_bg": "#FFD700",      # Or
+        "button_bg": "#FFD700",
         "button_fg": "black",
+        "window_bg": "#FFF9C4",
         "result_text": "#222222",
-        "window_bg": "#FFF9C4",      # Fond doux
-        "border_color": "#C6A700"
+        "warning": "red"
     }
 
 
-def apply_window_theme(root, colors):
-    """Applique les couleurs au fond de la fenêtre."""
-    root.config(bg=colors["window_bg"])
-
-
-def apply_ticket_style(button, result_label, colors):
-    """Applique le style visuel du ticket et du texte."""
-    button.config(
-        bg=colors["button_bg"],
-        fg=colors["button_fg"],
-        activebackground=colors["border_color"],
-        relief="groove",
-        bd=4
-    )
-
-    result_label.config(
-        fg=colors["result_text"],
-        bg=colors["window_bg"]
-    )
-
-
-
-# FONCTIONS INTERFACE
-
-
+# ========= FENETRE =========
 def create_window():
     root = tk.Tk()
-    root.title("Ticket à Gratter")
-    root.geometry("900x1000")
+    root.title("Ticket à Gratter - Prévention sur les jeux d'argent")
+    root.geometry("900x900")
     root.resizable(False, False)
 
-    # Appliquer la couleur générale
     colors = get_ticket_colors()
-    apply_window_theme(root, colors)
-
+    root.config(bg=colors["window_bg"])
     return root
 
 
+# ========= INTERFACE =========
 def create_title(root, colors):
-    label = tk.Label(root, text="🎟️Ticket à gratter",
-                     font=("Arial", 50, "bold"),
-                     bg=colors["window_bg"], fg="black")
-    label.pack(pady=50)
+    label = tk.Label(root, text="🎟️ Simulation Ticket à Gratter",
+                     font=("Arial", 38, "bold"),
+                     bg=colors["window_bg"])
+    label.pack(pady=30)
 
 
-def create_scratch_button(root, colors):
-    global scratch_button
+def create_input_area(root, colors):
+    global entry_nb_tickets
 
-    scratch_button = tk.Button(
-        root, text=" Gratte fils", font=("Arial", 50),
-        width=15, height=3, command=reveal_prize
-    )
-    scratch_button.pack(pady=15)
-
-    return scratch_button
-
-
-def create_result_label(root, colors):
-    global result_label
-
-    result_label = tk.Label(root, text="", font=("Arial", 16),
-                            bg=colors["window_bg"])
-    result_label.pack(pady=100)
-
-    return result_label
-
-
-def create_action_buttons(root, colors):
     frame = tk.Frame(root, bg=colors["window_bg"])
-    frame.pack(pady=10)
+    frame.pack(pady=20)
 
-    btn2 = tk.Button(frame, text="Nouveau ticket", font=("Arial", 30),
-                     command=new_ticket,
-                     bg=colors["button_bg"])
-    btn2.grid(row=0, column=1, padx=10)
+    tk.Label(frame, text="Nombre de tickets :", font=("Arial", 25),
+             bg=colors["window_bg"]).pack(side="left", padx=10)
 
-
-
-#FONCTIONS LOGIQUES DU JEU
+    entry_nb_tickets = tk.Entry(frame, font=("Arial", 30), width=5)
+    entry_nb_tickets.pack(side="left")
 
 
-def new_ticket():
-    """fait un nouveau gain et réinitialise l'affichage."""
-    global current_prize, prize_revealed
+def create_buttons(root, colors):
+    frame = tk.Frame(root, bg=colors["window_bg"])
+    frame.pack(pady=40)
 
-    # Pb : 90 % de 0$
-    prizes = [0] * 9 + [1, 5, 10, 50]
-    current_prize = random.choice(prizes)
+    # bouton gratter
+    btn_gratter = tk.Button(
+        frame, text="GRATTER", font=("Arial", 38, "bold"),
+        bg=colors["button_bg"], fg=colors["button_fg"],
+        width=10, command=simulate_and_show_stats
+    )
+    btn_gratter.grid(row=0, column=0, padx=20, pady=10)
 
-    prize_revealed = False
-    scratch_button.config(text=" Gratte fils", state="normal")
+    # bouton 1 an de jeu
+    btn_year = tk.Button(
+        frame, text="1 AN DE JEU", font=("Arial", 32),
+        bg="#FF8888", fg="black",
+        width=10, command=simulate_one_year
+    )
+    btn_year.grid(row=0, column=1, padx=20, pady=10)
+
+
+def create_result_area(root, colors):
+    global result_label
+    result_label = tk.Label(root, text="", font=("Arial", 24),
+                            bg=colors["window_bg"], justify="left")
+    result_label.pack(pady=20)
+
+
+def create_warning_area(root, colors):
+    global warning_label
+    warning_label = tk.Label(root, text="", font=("Arial", 26, "bold"),
+                             fg=colors["warning"], bg=colors["window_bg"])
+    warning_label.pack(pady=20)
+
+
+# ========= LOGIQUE =========
+def simulate_tickets(nb):
+    """Simule nb tickets et renvoie total gain."""
+    prizes = [0] * 97 + [1, 2, 5, 10]  # 97% perdants réalistes
+    total_gain = 0
+    for _ in range(nb):
+        total_gain += random.choice(prizes)
+    return total_gain
+
+
+def simulate_and_show_stats():
     result_label.config(text="")
+    warning_label.config(text="")
 
-
-def reveal_prize():
-    """Affiche le gain quand on gratte."""
-    global prize_revealed
-
-    if prize_revealed:
+    try:
+        nb = int(entry_nb_tickets.get())
+        if nb <= 0:
+            raise ValueError
+    except:
+        warning_label.config(text="⚠️ Entrez un nombre de tickets valide.")
         return
 
-    prize_revealed = True
-    scratch_button.config(state="disabled")
+    total_cost = nb * 1
+    total_gain = simulate_tickets(nb)
+    loss = total_cost - total_gain
+    roi = (total_gain / total_cost) * 100 if total_cost else 0
 
-    result_label.config(text=f"Gain : {current_prize} $" , font=("Arial", 30, "bold") )
-
-
-
-#PROGRAMME PRINCIPAL
+    display_results(nb, total_cost, total_gain, loss, roi)
 
 
+def simulate_one_year():
+    result_label.config(text="")
+    warning_label.config(text="")
+
+    nb = 365  # 1 ticket par jour pendant 1 an
+    total_cost = nb * 1
+    total_gain = simulate_tickets(nb)
+    loss = total_cost - total_gain
+    roi = (total_gain / total_cost) * 100
+
+    display_results(nb, total_cost, total_gain, loss, roi, one_year=True)
+
+
+def display_results(nb, total_cost, total_gain, loss, roi, one_year=False):
+
+    if one_year:
+        title = "📆 Si vous jouez 1 ticket par jour pendant 1 an :\n\n"
+    else:
+        title = "📊 Résultats :\n\n"
+
+    result_label.config(text=(
+        f"{title}"
+        f"Tickets joués : {nb}\n"
+        f"Total dépensé : {total_cost} €\n"
+        f"Total gagné : {total_gain} €\n"
+        f"Perte totale : {loss} €\n"
+        f"Rendement : {roi:.2f} %"
+    ))
+
+    # message éducatif
+    if roi < 20:
+        warning_label.config(
+            text="⚠️ Vous récupérez très peu de l'argent dépensé.\n"
+                 "Les jeux d'argent sont conçus pour faire perdre."
+        )
+    else:
+        warning_label.config(
+            text="⚠️ Même lorsqu'on croit gagner, on perd sur le long terme."
+        )
+
+
+# ========= PROGRAMME =========
 root = create_window()
 colors = get_ticket_colors()
 
 create_title(root, colors)
-scratch_button = create_scratch_button(root, colors)
-result_label = create_result_label(root, colors)
-create_action_buttons(root, colors)
+create_input_area(root, colors)
+create_buttons(root, colors)
+create_result_area(root, colors)
+create_warning_area(root, colors)
 
-# style du ticket
-apply_ticket_style(scratch_button, result_label, colors)
-
-new_ticket()
 root.mainloop()
