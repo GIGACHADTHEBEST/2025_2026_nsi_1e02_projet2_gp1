@@ -1,39 +1,37 @@
 import csv
-from model.jeu import Jeu
+from .jeu import Jeu
 
 
 class Catalogue:
-    def __init__(self, fichier_csv):
-        self.jeux = []
-        self.charger_csv(fichier_csv)
+    def __init__(self, chemin_csv):
+        self.jeux = self.charger_csv(chemin_csv)
 
-    def nettoyer_nombre(self, valeur):
-        if not valeur:
-            return 0
-        valeur = "".join(valeur.split())
-        return int(valeur)
+    def charger_csv(self, chemin):
+        jeux = []
 
-    def charger_csv(self, fichier_csv):
-        with open(fichier_csv, encoding="utf-8") as f:
-            reader = csv.reader(f)
-            header = next(reader)
+        with open(chemin, newline="", encoding="utf-8") as fichier:
+            lecteur = csv.DictReader(fichier)
 
-            montants = header[4:]  # colonnes des gains
+            for ligne in lecteur:
+                nom = ligne["jeu"]
 
-            for ligne in reader:
-                nom = ligne[0]
-                prix = self.nettoyer_nombre(ligne[1])
-                unites = self.nettoyer_nombre(ligne[2])
+                prix = int(ligne["prix"].replace(" ", "").replace("\u202f", ""))
+                unites = int(ligne["unites"].replace(" ", "").replace("\u202f", ""))
 
-                gains_dict = {}
+                gains = {}
 
-                for i, nb_gagnants in enumerate(ligne[4:]):
-                    if nb_gagnants:
-                        montant = self.nettoyer_nombre(montants[i])
-                        gains_dict[montant] = self.nettoyer_nombre(nb_gagnants)
+                for colonne, valeur in ligne.items():
+                    if colonne in ("jeu", "prix", "unites", "total_gains"):
+                        continue
 
-                jeu = Jeu(nom, prix, unites, gains_dict)
-                self.jeux.append(jeu)
+                    if valeur and valeur.strip():
+                        gain = int(colonne.replace(" ", "").replace("\u202f", ""))
+                        nb = int(valeur.replace(" ", "").replace("\u202f", ""))
+                        gains[gain] = nb
+
+                jeux.append(Jeu(nom, prix, unites, gains))
+
+        return jeux
 
     def get_jeu(self, nom):
         for jeu in self.jeux:
