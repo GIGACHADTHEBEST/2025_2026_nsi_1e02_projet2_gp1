@@ -11,6 +11,8 @@ class JeuController:
         self.view.combo_jeu["values"] = jeux_noms
 
         self.view.btn_jouer.config(command=self.jouer)
+        self.canvas = self.view.canvas_visualisation
+
 
     def jouer(self):
         nom_jeu = self.view.combo_jeu.get()
