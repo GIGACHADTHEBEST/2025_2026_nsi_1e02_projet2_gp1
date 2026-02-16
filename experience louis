@@ -1,0 +1,85 @@
+import pandas as pd 
+import tkinter as tk
+from tkinter import ttk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
+
+def main():
+    # =====================
+    # Chargement des données
+    # =====================
+    df = pd.read_csv("data-fdj-jeux-de-grattage.csv")
+
+    # Nettoyage de base
+    df = df.dropna(subset=["nom_jeu", "prix_ticket", "gain_max"])
+
+    # =====================
+    # Fenêtre principale
+    # =====================
+    root = tk.Tk()
+    root.title("Analyse des jeux d'argent FDJ")
+    root.geometry("900x600")
+
+    # =====================
+    # Zone filtres
+    # =====================
+    frame_filters = tk.Frame(root)
+    frame_filters.pack(pady=10)
+
+    # Liste des jeux
+    jeux = sorted(df["nom_jeu"].unique())
+    prix = sorted(df["prix_ticket"].unique())
+
+    # Variables Tkinter
+    jeu_var = tk.StringVar(value=jeux[0])
+    prix_var = tk.StringVar(value=prix[0])
+
+    # Sélecteur jeu
+    tk.Label(frame_filters, text="Jeu :").grid(row=0, column=0, padx=5)
+    jeu_menu = ttk.Combobox(frame_filters, textvariable=jeu_var, values=jeux, state="readonly")
+    jeu_menu.grid(row=0, column=1, padx=5)
+
+    # Sélecteur prix
+    tk.Label(frame_filters, text="Prix (€) :").grid(row=0, column=2, padx=5)
+    prix_menu = ttk.Combobox(frame_filters, textvariable=prix_var, values=prix, state="readonly")
+    prix_menu.grid(row=0, column=3, padx=5)
+
+    # =====================
+    # Zone graphique
+    # =====================
+    fig, ax = plt.subplots(figsize=(7, 4))
+    canvas = FigureCanvasTkAgg(fig, master=root)
+    canvas.get_tk_widget().pack()
+
+    def update_graph():
+        ax.clear()
+
+        jeu = jeu_var.get()
+        prix_ticket = float(prix_var.get())
+
+        filtered = df[
+            (df["nom_jeu"] == jeu) &
+            (df["prix_ticket"] == prix_ticket)
+        ]
+
+        if filtered.empty:
+            ax.text(0.5, 0.5, "Aucune donnée", ha="center", va="center")
+        else:
+            ax.bar(filtered["nom_jeu"], filtered["gain_max"])
+            ax.set_title(f"Gain max - {jeu}")
+            ax.set_ylabel("Gain maximum (€)")
+
+        canvas.draw()
+
+    # Bouton d’action
+    tk.Button(root, text="Actualiser le graphique", command=update_graph)\
+        .pack(pady=10)
+
+    # Affichage initial
+    update_graph()
+
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
