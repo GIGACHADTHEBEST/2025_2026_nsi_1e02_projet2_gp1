@@ -6,32 +6,113 @@ class SimulationView:
     def __init__(self, parent):
         self.window = tk.Toplevel(parent)
         self.window.title("Simulation")
-        self.window.geometry("550x400")
+        self.window.geometry("650x450")
+        self.window.resizable(False, False)
+        self.window.configure(bg="#1e1e2f")
 
-        ttk.Label(
-            self.window,
+        # ===== STYLE =====
+        style = ttk.Style()
+        style.theme_use("clam")
+
+        style.configure("Titre.TLabel",
+                        background="#1e1e2f",
+                        foreground="white",
+                        font=("Helvetica", 18, "bold"),
+                        anchor="center")
+
+        style.configure("Subtitle.TLabel",
+                        background="#1e1e2f",
+                        foreground="#cfcfe0",
+                        font=("Helvetica", 11),
+                        anchor="center")
+
+        style.configure("Menu.TButton",
+                        font=("Helvetica", 12, "bold"),
+                        padding=10)
+
+        style.configure("Custom.TCombobox",
+                        fieldbackground="white",
+                        padding=5)
+
+        style.configure("Custom.TEntry",
+                        padding=5)
+
+        # ===== FRAME PRINCIPAL =====
+        self.main_frame = tk.Frame(self.window, bg="#1e1e2f")
+        self.main_frame.pack(expand=True)
+
+        # ===== TITRE =====
+        self.label_titre = ttk.Label(
+            self.main_frame,
             text="Simulation à grande échelle",
-            font=("Helvetica", 16, "bold")
-        ).pack(pady=20)
+            style="Titre.TLabel"
+        )
+        self.label_titre.pack(pady=(40, 10))
 
-        ttk.Label(self.window, text="Jeu :").pack()
-        self.combo_jeu = ttk.Combobox(self.window, state="readonly", width=30)
-        self.combo_jeu.pack(pady=5)
+        # ===== SOUS-TITRE =====
+        self.label_sous_titre = ttk.Label(
+            self.main_frame,
+            text="Analysez vos gains et pertes sur un grand nombre de tickets",
+            style="Subtitle.TLabel"
+        )
+        self.label_sous_titre.pack(pady=(0, 30))
 
-        ttk.Label(self.window, text="Nombre de tickets :").pack()
-        self.entry_nb = ttk.Entry(self.window, width=15)
-        self.entry_nb.pack(pady=5)
+        # ===== FRAME CONTENU =====
+        self.frame_contenu = tk.Frame(self.main_frame, bg="#1e1e2f")
+        self.frame_contenu.pack()
 
-        self.btn_lancer = ttk.Button(self.window, text=" Lancer la simulation")
-        self.btn_lancer.pack(pady=15)
+        # ---- Choix du jeu ----
+        self.label_jeu = ttk.Label(
+            self.frame_contenu,
+            text="Jeu :",
+            style="Subtitle.TLabel"
+        )
+        self.label_jeu.pack(pady=(0, 5))
 
-        self.label_resultats = ttk.Label(self.window, text="", justify="left")
+        self.combo_jeu = ttk.Combobox(
+            self.frame_contenu,
+            state="readonly",
+            width=30,
+            style="Custom.TCombobox"
+        )
+        self.combo_jeu.pack(pady=10)
+
+        # ---- Nombre de tickets ----
+        self.label_nb = ttk.Label(
+            self.frame_contenu,
+            text="Nombre de tickets :",
+            style="Subtitle.TLabel"
+        )
+        self.label_nb.pack(pady=(10, 5))
+
+        self.entry_nb = ttk.Entry(
+            self.frame_contenu,
+            width=20,
+            style="Custom.TEntry"
+        )
+        self.entry_nb.pack(pady=10)
+
+        # ---- Bouton lancer ----
+        self.btn_lancer = ttk.Button(
+            self.frame_contenu,
+            text="▶ Lancer la simulation",
+            width=30,
+            style="Menu.TButton"
+        )
+        self.btn_lancer.pack(pady=20)
+
+        # ---- Résultats ----
+        self.label_resultats = ttk.Label(
+            self.frame_contenu,
+            text="",
+            style="Subtitle.TLabel",
+            justify="center"
+        )
         self.label_resultats.pack(pady=20)
-
 
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.withdraw()  # cache la fenêtre principale
+    root.withdraw()
     app = SimulationView(root)
     root.mainloop()
