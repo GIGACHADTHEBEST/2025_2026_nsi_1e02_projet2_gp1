@@ -82,12 +82,13 @@ class StatsView:
 
         # ===== BOUTON VISUALISATION =====
         self.btn_visualiser = ttk.Button(
-            self.main_frame,
-            text="Visualisation avancée",
-            width=30,
-            style="Menu.TButton"
+        self.main_frame,
+        text="Visualisation avancée",
+        width=30,
+        style="Menu.TButton"
         )
         self.btn_visualiser.pack(pady=5)
+
 
 
 if __name__ == "__main__":
