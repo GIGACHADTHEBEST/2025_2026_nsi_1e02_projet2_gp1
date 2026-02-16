@@ -6,7 +6,7 @@ class SimulationView:
     def __init__(self, parent):
         self.window = tk.Toplevel(parent)
         self.window.title("Simulation")
-        self.window.geometry("650x450")
+        self.window.geometry("650x500")
         self.window.resizable(False, False)
         self.window.configure(bg="#1e1e2f")
 
@@ -29,6 +29,10 @@ class SimulationView:
         style.configure("Menu.TButton",
                         font=("Helvetica", 12, "bold"),
                         padding=10)
+
+        style.configure("Retour.TButton",
+                        font=("Helvetica", 10),
+                        padding=6)
 
         style.configure("Custom.TCombobox",
                         fieldbackground="white",
@@ -108,7 +112,16 @@ class SimulationView:
             style="Subtitle.TLabel",
             justify="center"
         )
-        self.label_resultats.pack(pady=20)
+        self.label_resultats.pack(pady=15)
+
+        # ===== BOUTON RETOUR =====
+        self.btn_retour = ttk.Button(
+            self.main_frame,
+            text="⬅ Retourner au menu",
+            style="Retour.TButton",
+            command=self.window.destroy
+        )
+        self.btn_retour.pack(pady=(10, 20))
 
 
 if __name__ == "__main__":
