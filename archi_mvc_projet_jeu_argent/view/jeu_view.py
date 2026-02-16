@@ -6,7 +6,7 @@ class JeuView:
     def __init__(self, parent):
         self.window = tk.Toplevel(parent)
         self.window.title("Tester un jeu")
-        self.window.geometry("600x400")
+        self.window.geometry("600x450")
         self.window.resizable(False, False)
         self.window.configure(bg="#1e1e2f")
 
@@ -29,6 +29,10 @@ class JeuView:
         style.configure("Menu.TButton",
                         font=("Helvetica", 12, "bold"),
                         padding=10)
+
+        style.configure("Retour.TButton",
+                        font=("Helvetica", 10),
+                        padding=6)
 
         style.configure("Custom.TCombobox",
                         fieldbackground="white",
@@ -78,7 +82,7 @@ class JeuView:
         # Bouton jouer
         self.btn_jouer = ttk.Button(
             self.frame_contenu,
-            text="Gratter un ticket",
+            text="🎟 Gratter un ticket",
             width=25,
             style="Menu.TButton"
         )
@@ -90,7 +94,16 @@ class JeuView:
             text="",
             style="Subtitle.TLabel"
         )
-        self.label_resultat.pack(pady=20)
+        self.label_resultat.pack(pady=15)
+
+        # ===== BOUTON RETOUR =====
+        self.btn_retour = ttk.Button(
+            self.main_frame,
+            text="⬅ Retourner au menu",
+            style="Retour.TButton",
+            command=self.window.destroy
+        )
+        self.btn_retour.pack(pady=(10, 20))
 
 
 if __name__ == "__main__":
