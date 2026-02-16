@@ -134,7 +134,7 @@ class JeuView:
             state="readonly",
             width=30,
             style="Custom.TCombobox"
->>>>>>> 9a331bb7f7de09a85d19b6ee89f182793d90245d
+>>>>>>>
         )
         self.combo_jeu.pack(pady=10)
 
