@@ -6,35 +6,96 @@ class JeuView:
     def __init__(self, parent):
         self.window = tk.Toplevel(parent)
         self.window.title("Tester un jeu")
-        self.window.geometry("500x350")
+        self.window.geometry("600x400")
+        self.window.resizable(False, False)
+        self.window.configure(bg="#1e1e2f")
 
-        ttk.Label(
-            self.window,
+        # ===== STYLE =====
+        style = ttk.Style()
+        style.theme_use("clam")
+
+        style.configure("Titre.TLabel",
+                        background="#1e1e2f",
+                        foreground="white",
+                        font=("Helvetica", 18, "bold"),
+                        anchor="center")
+
+        style.configure("Subtitle.TLabel",
+                        background="#1e1e2f",
+                        foreground="#cfcfe0",
+                        font=("Helvetica", 11),
+                        anchor="center")
+
+        style.configure("Menu.TButton",
+                        font=("Helvetica", 12, "bold"),
+                        padding=10)
+
+        style.configure("Custom.TCombobox",
+                        fieldbackground="white",
+                        padding=5)
+
+        # ===== FRAME PRINCIPAL =====
+        self.main_frame = tk.Frame(self.window, bg="#1e1e2f")
+        self.main_frame.pack(expand=True)
+
+        # ===== TITRE =====
+        self.label_titre = ttk.Label(
+            self.main_frame,
             text="Tester un jeu",
-            font=("Helvetica", 16, "bold")
-        ).pack(pady=20)
+            style="Titre.TLabel"
+        )
+        self.label_titre.pack(pady=(40, 10))
 
-        # Choix du jeu
-        ttk.Label(self.window, text="Choisissez un jeu :").pack()
-        self.combo_jeu = ttk.Combobox(self.window, state="readonly", width=30)
+        # ===== SOUS-TITRE =====
+        self.label_sous_titre = ttk.Label(
+            self.main_frame,
+            text="Choisissez un jeu et tentez votre chance",
+            style="Subtitle.TLabel"
+        )
+        self.label_sous_titre.pack(pady=(0, 30))
+
+        # ===== FRAME CONTENU =====
+        self.frame_contenu = tk.Frame(self.main_frame, bg="#1e1e2f")
+        self.frame_contenu.pack()
+
+        # Label choix jeu
+        self.label_choix = ttk.Label(
+            self.frame_contenu,
+            text="Choisissez un jeu :",
+            style="Subtitle.TLabel"
+        )
+        self.label_choix.pack(pady=(0, 5))
+
+        # Combobox
+        self.combo_jeu = ttk.Combobox(
+            self.frame_contenu,
+            state="readonly",
+            width=30,
+            style="Custom.TCombobox"
+        )
         self.combo_jeu.pack(pady=10)
 
         # Bouton jouer
-        self.btn_jouer = ttk.Button(self.window, text="🎟 Gratter un ticket")
-        self.btn_jouer.pack(pady=15)
+        self.btn_jouer = ttk.Button(
+            self.frame_contenu,
+            text=" Gratter un ticket",
+            width=25,
+            style="Menu.TButton"
+        )
+        self.btn_jouer.pack(pady=20)
 
         # Résultat
         self.label_resultat = ttk.Label(
-            self.window,
+            self.frame_contenu,
             text="",
-            font=("Helvetica", 12)
+            style="Subtitle.TLabel"
         )
         self.label_resultat.pack(pady=20)
 
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.withdraw()  # cache la fenêtre principale (optionnel)
+    root.withdraw()
     app = JeuView(root)
     root.mainloop()
 
