@@ -1,12 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
 
-
 class JeuView:
     def __init__(self, parent):
         self.window = tk.Toplevel(parent)
         self.window.title("Tester un jeu")
-        self.window.geometry("600x500")
+        self.window.geometry("800x600")  # Fenêtre plus grande
         self.window.resizable(False, False)
         self.window.configure(bg="#1e1e2f")
 
@@ -40,7 +39,7 @@ class JeuView:
 
         # ===== FRAME PRINCIPAL =====
         self.main_frame = tk.Frame(self.window, bg="#1e1e2f")
-        self.main_frame.pack(expand=True)
+        self.main_frame.pack(expand=True, fill="both", padx=20, pady=10)
 
         # ===== TITRE =====
         self.label_titre = ttk.Label(
@@ -48,7 +47,7 @@ class JeuView:
             text="Tester un jeu",
             style="Titre.TLabel"
         )
-        self.label_titre.pack(pady=(40, 10))
+        self.label_titre.pack(pady=(20, 10))
 
         # ===== SOUS-TITRE =====
         self.label_sous_titre = ttk.Label(
@@ -65,11 +64,11 @@ class JeuView:
                 "Sous leur apparence anodine et ludique, les jeux à gratter déploient une "
                 "mécanique subtile où l’espérance de gain, rigoureusement calculée, demeure "
                 "structurellement défavorable au joueur. L’illusion d’un enrichissement instantané, "
-                "entretenue par la rareté savamment mise en scène des gains, peut progressivement "
+                "entretienue par la rareté savamment mise en scène des gains, peut progressivement "
                 "engendrer une dépendance insidieuse et des déséquilibres financiers durables."
             ),
             style="Subtitle.TLabel",
-            wraplength=550,
+            wraplength=750,
             justify="left"
         )
         self.label_intro.pack(pady=(0, 30))
