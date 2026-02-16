@@ -6,7 +6,7 @@ class SimulationView:
     def __init__(self, parent):
         self.window = tk.Toplevel(parent)
         self.window.title("Simulation")
-        self.window.geometry("650x500")
+        self.window.geometry("650x750")
         self.window.resizable(False, False)
         self.window.configure(bg="#1e1e2f")
 
@@ -99,7 +99,7 @@ class SimulationView:
         # ---- Bouton lancer ----
         self.btn_lancer = ttk.Button(
             self.frame_contenu,
-            text="▶ Lancer la simulation",
+            text=" Lancer la simulation",
             width=30,
             style="Menu.TButton"
         )
