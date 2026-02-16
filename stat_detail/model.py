@@ -7,7 +7,7 @@ class JeuModel:
     def _clean_number(self, valeur):
         if not valeur:
             return 0
-        return int(valeur.replace(" ", "").replace(" ", ""))
+        return int(valeur.replace(" ", "").replace(" ", ""))  # Nettoyer espaces et espaces insécables
 
     def _charger_csv(self, path):
         jeux = {}
@@ -19,7 +19,7 @@ class JeuModel:
                 for key, value in row.items():
                     if key.isdigit() or " " in key:
                         if value:
-                            gains[int(key.replace(" ", "").replace(" ", ""))] = self._clean_number(value)
+                            gains[int(key.replace(" ", "").replace(" ", ""))] = self._clean_number(value)
 
                 jeux[row["jeu"]] = {
                     "prix": self._clean_number(row["prix"]),
@@ -35,8 +35,8 @@ class JeuModel:
     def calculer_stats(self, jeu):
         mises = jeu["prix"] * jeu["tickets"]
         gains_totaux = sum(g * n for g, n in jeu["gains"].items())
-        perte_moyenne = (mises - gains_totaux) / jeu["tickets"]
-        trj = gains_totaux / mises * 100
+        perte_moyenne = (mises - gains_totaux) / jeu["tickets"] if jeu["tickets"] > 0 else 0
+        trj = gains_totaux / mises * 100 if mises > 0 else 0
 
         return {
             "mises": mises,
@@ -44,4 +44,3 @@ class JeuModel:
             "perte_moyenne": perte_moyenne,
             "trj": trj
         }
-    print("Model chargé correctement")

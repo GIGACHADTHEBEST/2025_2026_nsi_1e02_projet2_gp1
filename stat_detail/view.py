@@ -36,7 +36,7 @@ class StatsView:
             couleur_index += 1
 
             nb_carres = ceil(nb_tickets / CARRE_PAR_TICKETS)
-            proba = nb_tickets / jeu["tickets"] * 100
+            proba = nb_tickets / jeu["tickets"] * 100 if jeu["tickets"] > 0 else 0
             gain_total = gain * nb_tickets
 
             for _ in range(nb_carres):
@@ -73,9 +73,3 @@ class StatsView:
         tk.Button(stats_win, text="⬅ Retour au menu",
                   font=("Arial", 12),
                   command=stats_win.destroy).pack(pady=15)
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = StatsView(root)
-    root.mainloop()
