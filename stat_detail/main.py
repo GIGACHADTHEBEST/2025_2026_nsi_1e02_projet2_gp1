@@ -1,4 +1,5 @@
 import tkinter as tk
+import os
 
 # ==============================
 # CONFIG VISUELLE
@@ -19,7 +20,9 @@ view.MARGE = MARGE
 view.PAR_LIGNE = PAR_LIGNE
 view.CARRE_PAR_TICKETS = CARRE_PAR_TICKETS
 
-# imports après injection
+# ==============================
+# IMPORTS DU MODÈLE ET CONTROLLER
+# ==============================
 from model import JeuModel
 from my_controller import StatsController
 
@@ -31,11 +34,19 @@ def main():
     root.title("Menu principal")
     root.geometry("500x400")
 
-    model = JeuModel("jeux.csv")
+    # Chemin absolu vers le CSV
+    current_dir = os.path.dirname(__file__)
+    csv_path = os.path.join(current_dir, "jeux.csv")
+
+    # Charger le modèle
+    model = JeuModel(csv_path)
+
+    # Créer le controller
     controller = StatsController(root, model)
 
     tk.Label(root, text="Choisissez un jeu", font=("Arial", 16, "bold")).pack(pady=20)
 
+    # Bouton pour chaque jeu
     for nom_jeu in model.jeux.keys():
         tk.Button(root, text=nom_jeu, width=30,
                   command=lambda n=nom_jeu: controller.ouvrir_stats(n)).pack(pady=3)
