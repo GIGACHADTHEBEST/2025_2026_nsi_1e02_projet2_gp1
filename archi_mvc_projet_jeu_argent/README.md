@@ -24,8 +24,11 @@ Création des fenêtres de statistiques (choix des jeux et représentations grap
 Aide utile pour tous les autres membres
 
 Raphaël :
-Création des fenêtres de jeu (choix des jeux et application)
-Très bon psychologue
+Fort investissement dans la création et l’analyse des données
+Participation active à la compréhension et à l’exploitation du fichier CSV
+Développement du prototype du module « Jeu »
+Contribution importante à la structure du dossier « Jeu »
+Conception et réalisation complète du support visuel de présentation
 
 Gwenolé :
 Création de la fen^tre principal  (redirection vers les autres fenêtres)
