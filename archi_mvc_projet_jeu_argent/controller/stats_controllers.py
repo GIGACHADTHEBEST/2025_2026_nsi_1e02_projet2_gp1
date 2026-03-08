@@ -1,6 +1,7 @@
 from view.stats_view import StatsView
 from model.statistiques import Statistiques
 import tkinter as tk
+import random
 
 class StatsController:
     def __init__(self, root, catalogue):
@@ -45,20 +46,64 @@ class StatsController:
         jeu = self.catalogue.get_jeu(nom_jeu)
         stats = Statistiques(jeu)
 
-        probabilites = stats.proba_couleurs()
-        if not probabilites:
-            print("Aucune probabilité disponible")
+        # Récupération des données
+        gains = jeu.gains_dict
+        total = sum(gains.values())
+
+        if total == 0:
+            print("Aucun gain disponible")
             return
 
-        self.canvas.delete("all")
+        # --- Nouvelle fenêtre ---
+        win = tk.Toplevel(self.view.window)
+        win.title("Visualisation avancée")
+        win.geometry("900x600")
+        win.configure(bg="#1e1e2f")
 
-        x = 10
-        y = 10
-        hauteur = 100
-        largeur_totale = 480
+        # --- Canvas pour les carrés ---
+        canvas = tk.Canvas(win, width=850, height=350, bg="#1e1e2f", highlightthickness=0)
+        canvas.pack(pady=20)
 
-        for couleur, prob in probabilites.items():
-            largeur = prob * largeur_totale
-            self.canvas.create_rectangle(x, y, x + largeur, y + hauteur, fill=couleur, outline="white")
-            x += largeur
+        # --- Légende ---
+        frame_legende = tk.Frame(win, bg="#1e1e2f")
+        frame_legende.pack()
+
+        # Génération d'une couleur unique par montant
+        def couleur_depuis_montant(montant):
+            random.seed(montant)
+            r = random.randint(50, 255)
+            g = random.randint(50, 255)
+            b = random.randint(50, 255)
+            return f"#{r:02x}{g:02x}{b:02x}"
+
+        # --- Dessin des carrés ---
+        taille = 20
+        marge = 5
+        x, y = 10, 10
+        max_ligne = 40  # nombre de carrés par ligne
+
+        for montant, nb in gains.items():
+            couleur = couleur_depuis_montant(montant)
+
+            # Légende
+            proba = nb / total * 100
+            tk.Label(
+                frame_legende,
+                text=f"{montant} € — {nb} tickets — {proba:.2f} %",
+                bg="#1e1e2f",
+                fg=couleur,
+                font=("Helvetica", 11)
+            ).pack(anchor="w")
+
+            # Dessin des carrés
+            for _ in range(min(nb, 300)):  # limite pour éviter 100k carrés
+                canvas.create_rectangle(
+                    x, y, x + taille, y + taille,
+                    fill=couleur, outline="#1e1e2f"
+                )
+                x += taille + marge
+                if x > max_ligne * (taille + marge):
+                    x = 10
+                    y += taille + marge
+
 
