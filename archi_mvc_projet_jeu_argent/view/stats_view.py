@@ -7,7 +7,7 @@ class StatsView:
         self.window = tk.Toplevel(parent)
         self.window.title("Statistiques")
         self.window.geometry("750x450")
-        self.window.resizable(False, False)
+        self.window.resizable(True, True)
         self.window.configure(bg="#1e1e2f")
 
         style = ttk.Style()
@@ -75,12 +75,26 @@ class StatsView:
         self.label_stats.pack(pady=20)
 
         self.btn_visualiser = ttk.Button(
-        self.main_frame,
-        text="Visualisation avancée",
-        width=30,
-        style="Menu.TButton"
+            self.main_frame,
+            text="Visualisation avancée",
+            width=30,
+            style="Menu.TButton"
         )
         self.btn_visualiser.pack(pady=5)
+
+        # Bouton retour menu
+        self.btn_retour = ttk.Button(
+            self.main_frame,
+            text="Retour au menu",
+            width=30,
+            style="Menu.TButton",
+            command=self.retour_menu
+        )
+        self.btn_retour.pack(pady=20)
+
+    def retour_menu(self):
+        self.window.destroy()
+
 
 if __name__ == "__main__":
     root = tk.Tk()

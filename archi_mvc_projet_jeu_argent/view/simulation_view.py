@@ -107,7 +107,7 @@ class SimulationView:
 
         self.btn_retour = ttk.Button(
             self.main_frame,
-            text="⬅ Retourner au menu",
+            text=" Retourner au menu",
             style="Retour.TButton",
             command=self.window.destroy
         )
