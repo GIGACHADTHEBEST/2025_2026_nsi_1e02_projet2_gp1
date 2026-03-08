@@ -24,11 +24,11 @@ class JeuController:
 
         if gain > 0:
             self.view.label_resultat.config(
-                text=f"🎉 Vous avez gagné {gain} € \n ⚠️ Même lorsqu'on croit gagner, on perd sur le long terme."
+                text=f"Vous avez gagné {gain} € \n Même lorsqu'on croit gagner, on perd sur le long terme."
             )
         else:
             self.view.label_resultat.config(
-                text="😢 Ticket perdant \n ⚠️ Vous récupérez très peu de l'argent dépensé.\n"
+                text="Ticket perdant \n Vous récupérez très peu de l'argent dépensé.\n"
                  "Les jeux d'argent sont conçus pour faire perdre."
             )
         
