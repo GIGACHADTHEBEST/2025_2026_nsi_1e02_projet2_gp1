@@ -40,27 +40,20 @@ class StatsController:
     def visualiser_couleurs(self):
         nom_jeu = self.view.combo_jeu.get()
         if not nom_jeu:
-            print("Aucun jeu sélectionné")
             return
 
         jeu = self.catalogue.get_jeu(nom_jeu)
-        stats = Statistiques(jeu)
-
-        # Récupération des données
         gains = jeu.gains_dict
-        total = sum(gains.values())
-
-        if total == 0:
-            print("Aucun gain disponible")
-            return
+        perdants = jeu.perdants
+        total = jeu.unites
 
         # --- Nouvelle fenêtre ---
         win = tk.Toplevel(self.view.window)
         win.title("Visualisation avancée")
-        win.geometry("900x600")
+        win.geometry("900x650")
         win.configure(bg="#1e1e2f")
 
-        # --- Canvas pour les carrés ---
+        # --- Canvas ---
         canvas = tk.Canvas(win, width=850, height=350, bg="#1e1e2f", highlightthickness=0)
         canvas.pack(pady=20)
 
@@ -68,35 +61,49 @@ class StatsController:
         frame_legende = tk.Frame(win, bg="#1e1e2f")
         frame_legende.pack()
 
-        # Génération d'une couleur unique par montant
+        # Couleur unique par montant
         def couleur_depuis_montant(montant):
             random.seed(montant)
-            r = random.randint(50, 255)
-            g = random.randint(50, 255)
-            b = random.randint(50, 255)
+            r = random.randint(80, 255)
+            g = random.randint(80, 255)
+            b = random.randint(80, 255)
             return f"#{r:02x}{g:02x}{b:02x}"
 
-        # --- Dessin des carrés ---
+        # --- Construction des catégories ---
+        categories = []
+
+        # Gains
+        for montant, nb in gains.items():
+            proba = nb / total
+            couleur = couleur_depuis_montant(montant)
+            categories.append((f"{montant} €", nb, proba, couleur))
+
+        # Perdants
+        proba_perdants = perdants / total
+        categories.append(("Perdants", perdants, proba_perdants, "#cc0000"))
+
+
+        # --- Normalisation : 1 carré = 1 % ---
+        carre_par_pourcent = 1
         taille = 20
         marge = 5
         x, y = 10, 10
-        max_ligne = 40  # nombre de carrés par ligne
+        max_ligne = 30
 
-        for montant, nb in gains.items():
-            couleur = couleur_depuis_montant(montant)
+        for label, nb, proba, couleur in categories:
+            nb_carres = max(1, int(proba * 100))  # au moins 1 carré
 
             # Légende
-            proba = nb / total * 100
             tk.Label(
                 frame_legende,
-                text=f"{montant} € — {nb} tickets — {proba:.2f} %",
+                text=f"{label} — {nb} tickets — {proba*100:.5f} %",
                 bg="#1e1e2f",
                 fg=couleur,
                 font=("Helvetica", 11)
             ).pack(anchor="w")
 
-            # Dessin des carrés
-            for _ in range(min(nb, 300)):  # limite pour éviter 100k carrés
+            # Carrés
+            for _ in range(nb_carres):
                 canvas.create_rectangle(
                     x, y, x + taille, y + taille,
                     fill=couleur, outline="#1e1e2f"
