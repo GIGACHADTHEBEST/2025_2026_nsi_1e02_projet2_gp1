@@ -10,7 +10,6 @@ class StatsView:
         self.window.resizable(False, False)
         self.window.configure(bg="#1e1e2f")
 
-        # ===== STYLE =====
         style = ttk.Style()
         style.theme_use("clam")
 
@@ -35,11 +34,9 @@ class StatsView:
                         foreground="white",
                         font=("Helvetica", 11))
 
-        # ===== FRAME PRINCIPAL =====
         self.main_frame = tk.Frame(self.window, bg="#1e1e2f")
         self.main_frame.pack(expand=True)
 
-        # ===== TITRE =====
         self.label_titre = ttk.Label(
             self.main_frame,
             text="Statistiques du jeu",
@@ -47,7 +44,6 @@ class StatsView:
         )
         self.label_titre.pack(pady=(40, 20))
 
-        # ===== CHOIX JEU =====
         ttk.Label(
             self.main_frame,
             text="Jeu :",
@@ -62,7 +58,6 @@ class StatsView:
         )
         self.combo_jeu.pack(pady=10)
 
-        # ===== BOUTON CALCULER =====
         self.btn_calculer = ttk.Button(
             self.main_frame,
             text="Calculer",
@@ -71,7 +66,6 @@ class StatsView:
         )
         self.btn_calculer.pack(pady=15)
 
-        # ===== RESULTATS =====
         self.label_stats = ttk.Label(
             self.main_frame,
             text="",
@@ -80,7 +74,6 @@ class StatsView:
         )
         self.label_stats.pack(pady=20)
 
-        # ===== BOUTON VISUALISATION =====
         self.btn_visualiser = ttk.Button(
         self.main_frame,
         text="Visualisation avancée",
@@ -88,8 +81,6 @@ class StatsView:
         style="Menu.TButton"
         )
         self.btn_visualiser.pack(pady=5)
-
-
 
 if __name__ == "__main__":
     root = tk.Tk()

@@ -21,15 +21,11 @@ class Statistiques:
         total_gagnants = sum(self.jeu.gains_dict.values())
         if total_gagnants == 0:
             return {}
-
-        # Définition des catégories
         categories = {
             "green": lambda g: g <= 20,
             "orange": lambda g: 20 < g <= 200,
             "red": lambda g: g > 200
         }
-
-        # Comptage
         compte = {c: 0 for c in categories}
 
         for montant, nb in self.jeu.gains_dict.items():
@@ -37,8 +33,7 @@ class Statistiques:
                 if condition(montant):
                     compte[couleur] += nb
                     break
-
-        # Conversion en probabilités
+                
         return {
             couleur: nb / total_gagnants
             for couleur, nb in compte.items()

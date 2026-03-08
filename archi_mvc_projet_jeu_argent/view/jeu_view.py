@@ -5,11 +5,10 @@ class JeuView:
     def __init__(self, parent):
         self.window = tk.Toplevel(parent)
         self.window.title("Tester un jeu")
-        self.window.geometry("800x600")  # Fenêtre plus grande
+        self.window.geometry("800x600")
         self.window.resizable(False, False)
         self.window.configure(bg="#1e1e2f")
 
-        # ===== STYLE =====
         style = ttk.Style()
         style.theme_use("clam")
 
@@ -37,11 +36,9 @@ class JeuView:
                         fieldbackground="white",
                         padding=5)
 
-        # ===== FRAME PRINCIPAL =====
         self.main_frame = tk.Frame(self.window, bg="#1e1e2f")
         self.main_frame.pack(expand=True, fill="both", padx=20, pady=10)
 
-        # ===== TITRE =====
         self.label_titre = ttk.Label(
             self.main_frame,
             text="Tester un jeu",
@@ -49,7 +46,6 @@ class JeuView:
         )
         self.label_titre.pack(pady=(20, 10))
 
-        # ===== SOUS-TITRE =====
         self.label_sous_titre = ttk.Label(
             self.main_frame,
             text="Choisissez un jeu et tentez votre chance",
@@ -57,7 +53,6 @@ class JeuView:
         )
         self.label_sous_titre.pack(pady=(0, 20))
 
-        # ===== TEXTE INTRODUCTIF SUR LES DANGERS =====
         self.label_intro = ttk.Label(
             self.main_frame,
             text=(
@@ -73,11 +68,9 @@ class JeuView:
         )
         self.label_intro.pack(pady=(0, 30))
 
-        # ===== FRAME CONTENU =====
         self.frame_contenu = tk.Frame(self.main_frame, bg="#1e1e2f")
         self.frame_contenu.pack()
 
-        # Label choix jeu
         self.label_choix = ttk.Label(
             self.frame_contenu,
             text="Choisissez un jeu :",
@@ -85,7 +78,6 @@ class JeuView:
         )
         self.label_choix.pack(pady=(0, 5))
 
-        # Combobox
         self.combo_jeu = ttk.Combobox(
             self.frame_contenu,
             state="readonly",
@@ -94,7 +86,6 @@ class JeuView:
         )
         self.combo_jeu.pack(pady=10)
 
-        # Bouton jouer
         self.btn_jouer = ttk.Button(
             self.frame_contenu,
             text="Gratter un ticket",
@@ -103,7 +94,6 @@ class JeuView:
         )
         self.btn_jouer.pack(pady=20)
 
-        # Résultat
         self.label_resultat = ttk.Label(
             self.frame_contenu,
             text="",
@@ -111,7 +101,6 @@ class JeuView:
         )
         self.label_resultat.pack(pady=15)
 
-        # ===== BOUTON RETOUR =====
         self.btn_retour = ttk.Button(
             self.main_frame,
             text="Retourner au menu",

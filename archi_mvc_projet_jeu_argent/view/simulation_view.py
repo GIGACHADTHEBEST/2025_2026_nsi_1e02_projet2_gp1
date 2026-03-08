@@ -10,7 +10,6 @@ class SimulationView:
         self.window.resizable(False, False)
         self.window.configure(bg="#1e1e2f")
 
-        # ===== STYLE =====
         style = ttk.Style()
         style.theme_use("clam")
 
@@ -41,11 +40,9 @@ class SimulationView:
         style.configure("Custom.TEntry",
                         padding=5)
 
-        # ===== FRAME PRINCIPAL =====
         self.main_frame = tk.Frame(self.window, bg="#1e1e2f")
         self.main_frame.pack(expand=True)
 
-        # ===== TITRE =====
         self.label_titre = ttk.Label(
             self.main_frame,
             text="Simulation à grande échelle",
@@ -53,7 +50,6 @@ class SimulationView:
         )
         self.label_titre.pack(pady=(40, 10))
 
-        # ===== SOUS-TITRE =====
         self.label_sous_titre = ttk.Label(
             self.main_frame,
             text="Analysez vos gains et pertes sur un grand nombre de tickets",
@@ -61,11 +57,9 @@ class SimulationView:
         )
         self.label_sous_titre.pack(pady=(0, 30))
 
-        # ===== FRAME CONTENU =====
         self.frame_contenu = tk.Frame(self.main_frame, bg="#1e1e2f")
         self.frame_contenu.pack()
 
-        # ---- Choix du jeu ----
         self.label_jeu = ttk.Label(
             self.frame_contenu,
             text="Jeu :",
@@ -81,7 +75,6 @@ class SimulationView:
         )
         self.combo_jeu.pack(pady=10)
 
-        # ---- Nombre de tickets ----
         self.label_nb = ttk.Label(
             self.frame_contenu,
             text="Nombre de tickets :",
@@ -96,7 +89,6 @@ class SimulationView:
         )
         self.entry_nb.pack(pady=10)
 
-        # ---- Bouton lancer ----
         self.btn_lancer = ttk.Button(
             self.frame_contenu,
             text=" Lancer la simulation",
@@ -105,7 +97,6 @@ class SimulationView:
         )
         self.btn_lancer.pack(pady=20)
 
-        # ---- Résultats ----
         self.label_resultats = ttk.Label(
             self.frame_contenu,
             text="",
@@ -114,7 +105,6 @@ class SimulationView:
         )
         self.label_resultats.pack(pady=15)
 
-        # ===== BOUTON RETOUR =====
         self.btn_retour = ttk.Button(
             self.main_frame,
             text="⬅ Retourner au menu",
@@ -122,7 +112,6 @@ class SimulationView:
             command=self.window.destroy
         )
         self.btn_retour.pack(pady=(10, 20))
-
 
 if __name__ == "__main__":
     root = tk.Tk()
